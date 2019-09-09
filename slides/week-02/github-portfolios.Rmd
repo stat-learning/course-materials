@@ -1,0 +1,101 @@
+---
+title: "Getting Setup With Github"
+output:
+  xaringan::moon_reader:
+    css: ["fc", "fc-fonts", "reed.css", "default"]
+    lib_dir: libs
+    nature:
+      highlightStyle: atelier-forest-light
+      highlightLines: true
+      highlightSpans: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.width = 13, 
+                      message = FALSE, 
+                      warning = FALSE)
+```
+
+# Create repo-project
+
+1. Accept invite to `stat-learning`.
+
+--
+
+2. Create New Repo
+    - Title: `firstname-lastname`
+    - Make it private
+
+--
+3. Link repo to rstudio project
+    - Log into `rstudio.reed.edu`
+    - Create new project from version control
+    - Grab url for repo from github
+    - Title: `stat-learning`
+    - Initialize with README.md
+
+---
+#  Submitting assignments
+
+1. Edit README.md
+
+    - Add name, date, course, any other relevant biographical info
+    - Save file
+
+--
+2. Commit and push the change
+
+    - Click box next to changed file in Git pane and click commit
+    - Add message `initial commit` then commit
+    - Click up arrow to push the change
+
+--
+3. Verify the push
+    - Go to github and see if the file changed
+
+    
+---
+# Problem Set 1
+
+1. Download template
+
+    - `github.com/stat-learning/course-materials/problem-sets/ps-template.Rmd`
+
+--
+2. Upload to RStudio Server
+
+    - Click `Upload` in file pane
+
+--
+3. Commit and push
+
+    - Add name to file and save
+    - Commit, add message, and push
+
+    
+---
+
+
+---
+# Guess My Age Scorecard
+
+```{r out.width=800, echo = FALSE, fig.align='center'}
+knitr::include_graphics("figs/guess-my-age-blackboard.jpg")
+```
+
+
+---
+# Man vs Machine
+
+```{r out.width=400, echo = FALSE, fig.align='center'}
+knitr::include_graphics("figs/how-old.png")
+```
+
+--
+
+```{r}
+mean((c(23, 26, 58, 51, 27, 25, 22, 43, 47, 61) - 
+      c(32, 21, 79, 38, 19, 29, 28, 35, 31, 42))^2)
+```
+
