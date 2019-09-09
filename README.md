@@ -22,7 +22,7 @@ No class
 
 ### Monday
 - Github portfolios
-- Estimating $f$
+- Estimating f
 - **For next time:**
    - Read p 15 - 41
    - Problem Set 1 due beginning of next class
