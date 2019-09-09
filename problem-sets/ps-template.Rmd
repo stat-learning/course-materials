@@ -1,0 +1,18 @@
+---
+title: "Problem Set 1"
+author: "your name goes here"
+output: 
+  html_document: 
+    highlight: pygments
+    theme: spacelab
+---
+
+* * *
+
+### Chapter 2 exercises
+
+#### Exercise 1
+
+
+
+### Additional exercises
