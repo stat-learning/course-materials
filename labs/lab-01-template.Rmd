@@ -1,0 +1,60 @@
+---
+title: "Lab 1: Exploratory Data Analysis"
+subtitle: "This Bitter Earth"
+author: "your name goes here"
+output: 
+  html_document: 
+    highlight: pygments
+    theme: spacelab
+---
+
+* * *
+
+#### Exercise 1
+
+```{r}
+library(MASS)
+```
+
+*Type out your answer to the first question here.*
+
+#### Exercise 2
+
+```{r}
+
+```
+
+#### Exercise 3
+
+```{r}
+
+```
+
+
+#### Exercise 4
+
+```{r}
+
+```
+
+
+#### Exercise 5
+
+```{r}
+
+```
+
+
+#### Exercise 6
+
+```{r}
+
+```
+
+
+#### Exercise 7
+
+```{r}
+
+```
+
