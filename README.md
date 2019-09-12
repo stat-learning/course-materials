@@ -28,8 +28,8 @@ No class
    - Problem Set 1 due beginning of next class
 
 ### Wednesday
+- Decomposing MSE
 - Bias - Variance Tradeoff
-- Simulation for Decomposition
 - If time: start Lab 1
 - **For next time:**
     - Lab 1 due by start of next class
