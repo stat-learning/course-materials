@@ -32,4 +32,5 @@ No class
 - Bias - Variance Tradeoff
 - If time: start Lab 1
 - **For next time:**
+    - Read p 59 - 81
     - Lab 1 due by start of next class
