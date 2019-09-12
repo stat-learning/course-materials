@@ -24,7 +24,7 @@ though knowledge of linear algebra is not necessary.
 ### Contact
 [Andrew Bray](https://andrewpbray.github.io)  
 Office: Library 304  
-Office hours: Monday 1 - 2 pm, Wednesday 11 am - noon.
+Office hours: Monday 12:30 - 1:30 pm, Thursday 11 am - noon.
 
 
 ### Textbook
