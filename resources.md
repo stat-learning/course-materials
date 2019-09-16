@@ -10,7 +10,7 @@ Instructions for all of this are here:
 
 [http://happygitwithr.com](http://happygitwithr.com)
 
-### Claim your private DS Elections repository
+### Claim your repository
 
 Head over to [http://www.github.com/stat-learning](http://www.github.com/stat-learning). Note that we have added you to a private repository (aka folder) that belongs only to you. There are exactly three people that can see this repo: you, Andrew, and Philip, the class TA. Other than that, it's private - the rest of the internet cannot see it.
 
