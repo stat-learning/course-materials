@@ -34,3 +34,20 @@ No class
 - **For next time:**
     - Read p 59 - 81
     - Lab 1 due by start of next class
+    
+    
+## Week 3
+
+### Monday
+- k-nearest neighbors (KNN)
+- Linear Regression
+- **For next time:**
+   - Read p 82 - 92
+   - Lab 2 due at beginning of class next Monday
+
+### Wednesday
+- Extending the linear model
+- **For next time:**
+    - Read p 92 - 109
+    - Finish Lab 2
+
