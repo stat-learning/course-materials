@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>linear-regression.utf8</title>
+    <meta charset="utf-8" />
+    <link href="libs/remark-css-0.0.1/fc.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/fc-fonts.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="reed.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+# Bias-Variance Tradeoff: KNN
+
+&lt;img src="figs/knn.gif" width="620" style="display: block; margin: auto;" /&gt;
+
+---
+# Linear Regression (on board, live coding)
+
+
+
+
+---
+# Plato's Allegory of the Cave
+
+![](http://4.bp.blogspot.com/-rV1c4Xh4SSE/UZshhTTdFsI/AAAAAAAACQA/1VkmOaF7WFU/s1600/plato-cave.jpg)
+
+---
+
+# Statistical Inference
+
+--
+
+**Goal**: use *statistics* calculated from data to makes inferences about the 
+nature of *parameters*.
+
+--
+
+In regression,
+
+- statistics: `\(\hat{\beta}_0\)`, `\(\hat{\beta}_1\)`
+- parameters: `\(\beta_0\)`, `\(\beta_1\)`
+
+--
+
+Classical tools of inference:
+
+- Confidence Intervals
+- Hypothesis Tests
+
+---
+
+# Quick Review (start the timer)
+
+---
+
+# Confidence Intervals
+
+A confidence interval expresses the amount of uncertainly we have in our estimate
+of a particular parameter.  A general 1 - `\(\alpha\)` confidence interval takes the form
+
+--
+
+`$$\hat{\theta} \pm t^{*} * SE(\hat{\theta})$$`
+
+- `\(\alpha\)`: is the confidence level, often .05
+- `\(\hat{\theta}\)`: a statistic (point estimate)
+- `\(t^{*}\)` is the `\(100(1 - \alpha / 2)\)` quantile of the sampling distribution of `\(\hat{\theta}\)`
+- `\(SE\)` is the standard error of `\(\hat{\theta}\)`, i.e. the standard deviation of its sampling
+distribution.
+
+---
+
+# Common Regression Assumptions
+
+--
+
+1. `\(Y\)` is related to `\(x\)` by a simple linear regression model.
+$$
+E(Y|X) = \beta_0 + \beta_1 * x
+$$
+
+--
+
+2. The errors `\(e_1, e_2, \ldots, e_n\)` are independent of one another.
+
+--
+
+3. The errors have a common variance `\(\sigma^2\)`.
+
+--
+
+4. The errors are normally distributed: `\(\epsilon \sim N(0, \sigma^2)\)`
+
+---
+# The Sampling Distribution of `\(\hat{\beta}_1\)`
+
+Assume the following true model:
+
+$$
+E(Y|X) = 12 + .7 * x; \epsilon \sim N(0, 4)
+$$
+
+
+&lt;img src="linear-regression_files/figure-html/unnamed-chunk-4-1.png" width="576" style="display: block; margin: auto;" /&gt;
+
+--
+
+# The Sampling Distribution of `\(\hat{\beta}_1\)`
+
+Assume the following true model:
+
+$$
+E(Y|X) = 12 + .7 * x; \epsilon \sim N(0, 4)
+$$
+
+&lt;img src="linear-regression_files/figure-html/unnamed-chunk-5-1.png" width="576" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+# The Sampling Distribution of `\(\hat{\beta}_1\)`
+
+Assume the following true model:
+
+$$
+E(Y|X) = 12 + .7 * x; \epsilon \sim N(0, 4)
+$$
+
+
+
+&lt;img src="linear-regression_files/figure-html/unnamed-chunk-7-1.png" width="576" style="display: block; margin: auto;" /&gt;
+
+---
+
+# The Sampling Distribution of `\(\hat{\beta}_1\)`
+
+&lt;img src="linear-regression_files/figure-html/unnamed-chunk-8-1.png" width="576" style="display: block; margin: auto;" /&gt;
+
+---
+
+# The Sampling Distribution of `\(\hat{\beta}_1\)`
+
+&lt;img src="linear-regression_files/figure-html/unnamed-chunk-9-1.png" width="576" style="display: block; margin: auto;" /&gt;
+
+---
+
+# The Sampling Distribution of `\(\hat{\beta}_1\)`
+
+&lt;img src="linear-regression_files/figure-html/unnamed-chunk-10-1.png" width="576" style="display: block; margin: auto;" /&gt;
+
+---
+
+# The Sampling Distribution of `\(\hat{\beta}_1\)`
+
+Characteristics:
+
+1. Centered at `\(\beta_1\)`, i.e. `\(E(\hat{\beta}_1) = \beta\)`.
+2. `\(Var(\hat{\beta}_1) = \frac{\sigma^2}{SXX}\)`.
+    - where `\(SXX = \sum_{i = 1}^n (x_i - \bar{x})^2\)`
+3. `\(\hat{\beta}_1 | X \sim N (\beta_1, \frac{\sigma^2}{SXX})\)`.
+
+
+---
+
+# Approximating the Sampling Dist. of `\(\hat{\beta}_1\)` 
+
+--
+
+Our best guess of `\(\beta_1\)` is `\(\hat{\beta}_1\)`. And since we have to estimate
+`\(\sigma\)` with `\(\hat{\sigma}^2 = RSS/n-2\)`, the distribution isn't normal, but...
+
+--
+
+T with n - 2 degrees of freedom.
+
+And we summarize that approximate sampling distribution using a CI:
+
+`$$\hat{\beta}_1 \pm t_{\alpha/2, n-2} * SE(\hat{\beta}_1)$$`
+
+where
+
+$$
+SE(\hat{\beta}_1) = s/\sqrt(SXX)
+$$
+
+
+
+
+
+---
+# Interpreting a CI for `\(\hat{\beta}_1\)`
+
+We are *95% confident* that the true slope between x and y lies between LB and UB.
+
+
+---
+# Hypothesis test for `\(\hat{\beta}_1\)`
+
+Suppose we are interested in testing the claim that the slope is zero.
+
+$$
+H_0: \beta_1^0 = 0 \\
+H_A: \beta_1^0 \ne 0
+$$
+
+We know that
+
+$$
+T = \frac{\hat{\beta}_1 - \beta_1^0}{SE(\hat{\beta}_1)}
+$$
+
+T will be t distributed with `\(n-2\)` degrees of freedom and with `\(SE(\hat{\beta}_1)\)`
+calculated the same as in the CI.
+
+---
+
+# Inference for `\(\hat{\beta}_0\)`
+
+Often less interesting (but not always!).  You use the t-distribution again but
+with a different `\(SE\)`.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "atelier-forest-light",
+"highlightLines": true,
+"highlightSpans": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

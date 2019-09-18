@@ -1,0 +1,367 @@
+---
+title: ""
+output:
+  xaringan::moon_reader:
+    css: ["fc", "fc-fonts", "reed.css", "default"]
+    lib_dir: libs
+    nature:
+      highlightStyle: atelier-forest-light
+      highlightLines: true
+      highlightSpans: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(fig.width = 8,
+                      fig.align = "center",
+                      message = FALSE, 
+                      warning = FALSE,
+                      fig.retina = 3)
+library(tidyverse)
+library(gganimate)
+theme_set(theme_bw())
+```
+
+```{r echo = FALSE, eval = FALSE, fig.width=6, fig.height = 6}
+library(tidyverse)
+library(gganimate)
+
+knn <- function(x, k, training_data) {
+  n <- length(x)
+  y_hat <- rep(NA, n)
+  for (i in 1:n) {
+    dists <- abs(x[i] - training_data$x)
+    neighbors <- order(dists)[1:k]
+    y_hat[i] <- mean(training_data$y[neighbors])
+  }
+  y_hat
+}
+
+df <- tibble(x = c(1:3, 5:12),
+             y = c(-7.1, -7.1, .5, -3.6, -2, -1.7, -4, -.2, -1.2, -1.2, -3.5))
+
+k_vec <- 1:12
+x <- seq(.5, 12.5, length.out = 300)
+y_hats <- c()
+for (k in k_vec) {
+  temp <- knn(x = x,
+               k = k, 
+               training_data = df)
+  y_hats <- c(y_hats, temp)
+}
+
+df_fun <- tibble(xs = rep(x, times = length(k_vec)),
+                 y_hats = y_hats,
+                 ks = rep(k_vec, each = length(x)))
+
+p <- ggplot() +
+  geom_point(data = df, aes(x = x, y = y)) +
+  geom_step(data = df_fun, aes(x = xs, y = y_hats), color = "steelblue") + 
+  theme_bw() +
+  ylab("arrival time") +
+  xlab("position in class") +
+  transition_states(ks, transition_length = 3, state_length = 2) + 
+  ease_aes('cubic-in-out') +
+  labs(title = '{closest_state} Nearest Neighbors')
+
+anim <- animate(p, nframes = 500)
+anim_save("figs/knn.gif")
+```
+
+# Bias-Variance Tradeoff: KNN
+
+```{r out.width=620, echo = FALSE, fig.align='center'}
+knitr::include_graphics("figs/knn.gif")
+```
+
+---
+# Linear Regression (on board, live coding)
+
+```{r echo = FALSE, eval = FALSE}
+library(tidyverse)
+d <- read.csv("https://raw.githubusercontent.com/nguyen-toan/ISLR/master/dataset/Advertising.csv")
+str(d)
+
+ggplot()
+library(GGally)
+ggpairs()
+
+m1 <- lm(Sales ~ TV, data = d)
+attributes(m1)
+```
+
+
+---
+# Plato's Allegory of the Cave
+
+![](http://4.bp.blogspot.com/-rV1c4Xh4SSE/UZshhTTdFsI/AAAAAAAACQA/1VkmOaF7WFU/s1600/plato-cave.jpg)
+
+---
+
+# Statistical Inference
+
+--
+
+**Goal**: use *statistics* calculated from data to makes inferences about the 
+nature of *parameters*.
+
+--
+
+In regression,
+
+- statistics: $\hat{\beta}_0$, $\hat{\beta}_1$
+- parameters: $\beta_0$, $\beta_1$
+
+--
+
+Classical tools of inference:
+
+- Confidence Intervals
+- Hypothesis Tests
+
+---
+
+# Quick Review (start the timer)
+
+---
+
+# Confidence Intervals
+
+A confidence interval expresses the amount of uncertainly we have in our estimate
+of a particular parameter.  A general 1 - $\alpha$ confidence interval takes the form
+
+--
+
+$$\hat{\theta} \pm t^{*} * SE(\hat{\theta})$$
+
+- $\alpha$: is the confidence level, often .05
+- $\hat{\theta}$: a statistic (point estimate)
+- $t^{*}$ is the $100(1 - \alpha / 2)$ quantile of the sampling distribution of $\hat{\theta}$
+- $SE$ is the standard error of $\hat{\theta}$, i.e. the standard deviation of its sampling
+distribution.
+
+---
+
+# Common Regression Assumptions
+
+--
+
+1. $Y$ is related to $x$ by a simple linear regression model.
+$$
+E(Y|X) = \beta_0 + \beta_1 * x
+$$
+
+--
+
+2. The errors $e_1, e_2, \ldots, e_n$ are independent of one another.
+
+--
+
+3. The errors have a common variance $\sigma^2$.
+
+--
+
+4. The errors are normally distributed: $\epsilon \sim N(0, \sigma^2)$
+
+---
+# The Sampling Distribution of $\hat{\beta}_1$
+
+Assume the following true model:
+
+$$
+E(Y|X) = 12 + .7 * x; \epsilon \sim N(0, 4)
+$$
+
+
+```{r, echo=FALSE,eval=TRUE}
+n <- 60
+beta_0 <- 12
+beta_1 <- .7
+sigma <- 2
+x <- rnorm(n, mean = 20, sd = 3)
+
+plot(20, 25, xlim = c(12, 28), ylim = c(17, 35), ylab = "y", xlab = "x", type = "n") # set up an empty plot
+abline(a = beta_0, b = beta_1, col = "goldenrod", lwd = 2) # add mean function
+```
+
+--
+
+# The Sampling Distribution of $\hat{\beta}_1$
+
+Assume the following true model:
+
+$$
+E(Y|X) = 12 + .7 * x; \epsilon \sim N(0, 4)
+$$
+
+```{r, eval=TRUE, echo=FALSE}
+plot(20, 25, xlim = c(12, 28), ylim = c(17, 35), ylab = "y", xlab = "x", type = "n") # set up an empty plot
+
+# generate data
+f_mean <- beta_0 + beta_1 * x # mean function
+f_data <- f_mean + rnorm(n, mean = 0, sd = sigma) # data generating function
+
+points(x, f_data, pch = 16, col = "steelblue") # add generated data
+# try to recover the true mean function
+m1 <- lm(f_data ~ x)
+abline(m1, lwd = 1.5)
+abline(a = beta_0, b = beta_1, col = "goldenrod", lwd = 2) # add mean function
+```
+
+
+---
+
+# The Sampling Distribution of $\hat{\beta}_1$
+
+Assume the following true model:
+
+$$
+E(Y|X) = 12 + .7 * x; \epsilon \sim N(0, 4)
+$$
+
+```{r, echo=FALSE,eval=TRUE, cache=TRUE}
+it <- 5000
+coef_mat <- matrix(rep(NA, it * 2), ncol = 2)
+for(i in 1:it) {
+  x <- rnorm(n, mean = 20, sd = 3)
+  f_mean <- beta_0 + beta_1 * x
+  f_data <- f_mean + rnorm(n, mean = 0, sd = sigma)
+  coef_mat[i, ] <- lm(f_data ~ x)$coef
+}
+```
+
+```{r, eval=TRUE, echo=FALSE}
+plot(20, 25, xlim = c(12, 28), ylim = c(17, 35), ylab = "y", xlab = "x", type = "n") # set up an empty plot
+
+points(x, f_data, pch = 16, col = "steelblue") # add generated data
+for(i in 1:it) {
+  abline(coef_mat[i, 1], coef_mat[i, 2], col = rgb(0, 0, 0, 0.02))
+}
+abline(a = beta_0, b = beta_1, col = "goldenrod", lwd = 2) # add mean function
+```
+
+---
+
+# The Sampling Distribution of $\hat{\beta}_1$
+
+```{r, echo=FALSE}
+beta_1s <- coef_mat[, 2]
+hist(beta_1s, breaks = 20, 
+     main = expression(paste("Sampling distribution of ", hat(beta)[1])),
+     xlab = expression(hat(beta)[1]), prob = TRUE)
+# mean(beta_1s)
+# sd(beta_1s)
+```
+
+---
+
+# The Sampling Distribution of $\hat{\beta}_1$
+
+```{r, echo=FALSE}
+beta_1s <- coef_mat[, 2]
+hist(beta_1s, breaks = 20, 
+     main = expression(paste("Sampling distribution of ", hat(beta)[1])),
+     xlab = expression(hat(beta)[1]), prob = TRUE)
+abline(v = beta_1, col = "orange", lwd = 2)
+text(beta_1+.02, .5, expression(beta[1]))
+```
+
+---
+
+# The Sampling Distribution of $\hat{\beta}_1$
+
+```{r, echo=FALSE}
+beta_1s <- coef_mat[, 2]
+hist(beta_1s, breaks = 20, 
+     main = expression(paste("Sampling distribution of ", hat(beta)[1])),
+     xlab = expression(hat(beta)[1]), prob = TRUE)
+abline(v = beta_1, col = "orange", lwd = 2)
+text(beta_1+.02, .5, expression(beta[1]))
+xl <- seq(min(beta_1s), max(beta_1s), length.out = 100)
+lines(xl, dnorm(xl, mean = beta_1, sd = sqrt(sigma^2/sum((x-mean(x))^2))), 
+      lwd = 2, col = "thistle3")
+```
+
+---
+
+# The Sampling Distribution of $\hat{\beta}_1$
+
+Characteristics:
+
+1. Centered at $\beta_1$, i.e. $E(\hat{\beta}_1) = \beta$.
+2. $Var(\hat{\beta}_1) = \frac{\sigma^2}{SXX}$.
+    - where $SXX = \sum_{i = 1}^n (x_i - \bar{x})^2$
+3. $\hat{\beta}_1 | X \sim N (\beta_1, \frac{\sigma^2}{SXX})$.
+
+
+---
+
+# Approximating the Sampling Dist. of $\hat{\beta}_1$ 
+
+--
+
+Our best guess of $\beta_1$ is $\hat{\beta}_1$. And since we have to estimate
+$\sigma$ with $\hat{\sigma}^2 = RSS/n-2$, the distribution isn't normal, but...
+
+--
+
+T with n - 2 degrees of freedom.
+
+And we summarize that approximate sampling distribution using a CI:
+
+$$\hat{\beta}_1 \pm t_{\alpha/2, n-2} * SE(\hat{\beta}_1)$$
+
+where
+
+$$
+SE(\hat{\beta}_1) = s/\sqrt(SXX)
+$$
+
+
+
+```{r, eval=FALSE, echo = FALSE}
+## Constructing a CI for $\hat{\beta}_1$
+
+\[ \hat{\beta}_1 \pm t_{\alpha/2, n-2} * SE(\hat{\beta}_1) \]
+
+beta_1 <- m1$coef[2]
+alpha <- .05
+t_stat <- qt(1-alpha/2, n - 2)
+SE <- summary(m1)$coef[[4]]
+moe <- t_stat * SE
+c(beta_1 - moe, beta_1 + moe)
+
+confint(m1, "x") # to double check
+```
+
+---
+# Interpreting a CI for $\hat{\beta}_1$
+
+We are *95% confident* that the true slope between x and y lies between LB and UB.
+
+
+---
+# Hypothesis test for $\hat{\beta}_1$
+
+Suppose we are interested in testing the claim that the slope is zero.
+
+$$
+H_0: \beta_1^0 = 0 \\
+H_A: \beta_1^0 \ne 0
+$$
+
+We know that
+
+$$
+T = \frac{\hat{\beta}_1 - \beta_1^0}{SE(\hat{\beta}_1)}
+$$
+
+T will be t distributed with $n-2$ degrees of freedom and with $SE(\hat{\beta}_1)$
+calculated the same as in the CI.
+
+---
+
+# Inference for $\hat{\beta}_0$
+
+Often less interesting (but not always!).  You use the t-distribution again but
+with a different $SE$.
