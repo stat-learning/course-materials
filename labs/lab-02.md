@@ -82,11 +82,65 @@ f_hat <- function(x) {
     the original data? How is it different? How might you change your
     model to make it more consistent with the data?
 
------
-
 **Challenge problem** Use the latitude and longitude data to plot each
 of these earthquakes in `quakes` on a map with their magnitude mapped to
 the size of the plotting character. You may need to ad some transparency
 to prevent overplotting.
 
-# Part II: TBA
+-----
+
+# Problem Set 2:
+
+#### Chapter 3 exercises
+
+1, 4, 5
+
+#### Additional exercise
+
+The k-nearest neighbor regression was defined as:
+
+\[\hat{f}(x) = \frac{1}{k} \sum_{x_i \in \mathcal{N}(x)} y_i\]
+
+This is one of the few models that has a closed form for the bias and
+the variance. Calculate each and use them to write a decomposition of
+the expected test MSE its three components. This is an emminently
+google-able result, but doing so will teach you nothing, so work to do
+this yourself (or working with each other). It’s not an extensive
+derivation at all, you just have to be sure you’re careful in your
+notation. If you’re new to , draw examples from the source files on the
+website. Please post to slack if you have questions.
+
+One you have a form for each of these terms, construct a plot that shows
+the decomposition of the MSE into its components as a function of \(k\)
+(this is a formal version of your sketch from the handout). Use the
+following as your training data set:
+
+``` r
+x <- c(1:3, 5:12)
+y <- c(-7.1, -7.1, .5, -3.6, -2, -1.7, -4, -.2, -1.2, -1.2, -3.5)
+```
+
+And the following example of how to plot a function of \(k\) (with the
+training data fixed).
+
+``` r
+library(tidyverse)
+my_fun <- function(k, x, y) {
+  f_k <- rep(NA, length(k))
+  for (i in 1:length(k)) {
+    f_k[i] <- sum(k[i] + y + x)
+  }
+  f_k
+}
+
+k <- 1:10
+f_k <- my_fun(k, x, y)
+
+df <- tibble(k = k, f_k = f_k)
+ggplot(df, aes(x = k, y = f_k)) +
+  geom_line(col = "tomato") +
+  theme_bw() +
+  ylab("variability")
+```
+
+![](lab-02_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
