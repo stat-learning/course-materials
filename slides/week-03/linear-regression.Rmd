@@ -173,7 +173,7 @@ E(Y|X) = 12 + .7 * x; \epsilon \sim N(0, 4)
 $$
 
 
-```{r, echo=FALSE,eval=TRUE}
+```{r, echo=FALSE,eval=TRUE, fig.height = 5, fig.width = 5}
 n <- 60
 beta_0 <- 12
 beta_1 <- .7
@@ -184,7 +184,7 @@ plot(20, 25, xlim = c(12, 28), ylim = c(17, 35), ylab = "y", xlab = "x", type = 
 abline(a = beta_0, b = beta_1, col = "goldenrod", lwd = 2) # add mean function
 ```
 
---
+---
 
 # The Sampling Distribution of $\hat{\beta}_1$
 
@@ -194,7 +194,7 @@ $$
 E(Y|X) = 12 + .7 * x; \epsilon \sim N(0, 4)
 $$
 
-```{r, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE, fig.height = 5, fig.width = 5}
 plot(20, 25, xlim = c(12, 28), ylim = c(17, 35), ylab = "y", xlab = "x", type = "n") # set up an empty plot
 
 # generate data
@@ -230,7 +230,7 @@ for(i in 1:it) {
 }
 ```
 
-```{r, eval=TRUE, echo=FALSE}
+```{r, eval=TRUE, echo=FALSE, fig.height = 5, fig.width = 5}
 plot(20, 25, xlim = c(12, 28), ylim = c(17, 35), ylab = "y", xlab = "x", type = "n") # set up an empty plot
 
 points(x, f_data, pch = 16, col = "steelblue") # add generated data
@@ -289,8 +289,14 @@ lines(xl, dnorm(xl, mean = beta_1, sd = sqrt(sigma^2/sum((x-mean(x))^2))),
 Characteristics:
 
 1. Centered at $\beta_1$, i.e. $E(\hat{\beta}_1) = \beta$.
+
+--
+
 2. $Var(\hat{\beta}_1) = \frac{\sigma^2}{SXX}$.
     - where $SXX = \sum_{i = 1}^n (x_i - \bar{x})^2$
+    
+--
+
 3. $\hat{\beta}_1 | X \sim N (\beta_1, \frac{\sigma^2}{SXX})$.
 
 

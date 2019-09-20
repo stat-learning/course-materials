@@ -108,9 +108,9 @@ E(Y|X) = 12 + .7 * x; \epsilon \sim N(0, 4)
 $$
 
 
-&lt;img src="linear-regression_files/figure-html/unnamed-chunk-4-1.png" width="576" style="display: block; margin: auto;" /&gt;
+&lt;img src="linear-regression_files/figure-html/unnamed-chunk-4-1.png" width="360" style="display: block; margin: auto;" /&gt;
 
---
+---
 
 # The Sampling Distribution of `\(\hat{\beta}_1\)`
 
@@ -120,7 +120,7 @@ $$
 E(Y|X) = 12 + .7 * x; \epsilon \sim N(0, 4)
 $$
 
-&lt;img src="linear-regression_files/figure-html/unnamed-chunk-5-1.png" width="576" style="display: block; margin: auto;" /&gt;
+&lt;img src="linear-regression_files/figure-html/unnamed-chunk-5-1.png" width="360" style="display: block; margin: auto;" /&gt;
 
 
 ---
@@ -135,7 +135,7 @@ $$
 
 
 
-&lt;img src="linear-regression_files/figure-html/unnamed-chunk-7-1.png" width="576" style="display: block; margin: auto;" /&gt;
+&lt;img src="linear-regression_files/figure-html/unnamed-chunk-7-1.png" width="360" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -162,8 +162,14 @@ $$
 Characteristics:
 
 1. Centered at `\(\beta_1\)`, i.e. `\(E(\hat{\beta}_1) = \beta\)`.
+
+--
+
 2. `\(Var(\hat{\beta}_1) = \frac{\sigma^2}{SXX}\)`.
     - where `\(SXX = \sum_{i = 1}^n (x_i - \bar{x})^2\)`
+    
+--
+
 3. `\(\hat{\beta}_1 | X \sim N (\beta_1, \frac{\sigma^2}{SXX})\)`.
 
 
