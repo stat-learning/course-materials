@@ -81,4 +81,6 @@ transparent and easily reproducible. [These slides](https://prezi.com/dvmgx17e_w
 and basic structure of R Markdown while [this video](https://www.youtube.com/watch?v=DNS7i2m4sB0) is a good walkthrough to making
 your first R Markdown document.
 
+[Here](https://www.stat.cmu.edu/~cshalizi/rmarkdown/) is a great primer for using R Markdown and Latex.
+
 For all the important ideas summarized into a single place, you can use the [R Markdown cheatsheet](https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf).
