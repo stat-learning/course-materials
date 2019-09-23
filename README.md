@@ -51,3 +51,19 @@ No class
     - Read p 92 - 109
     - Finish Lab 2
 
+
+## Week 4
+
+### Monday
+- Review MSE for KNN (from Lab 2)
+- Geometry of MLR (housing prices activity)
+- Assesssing Model Fit
+- Transformations
+- **For next time:**
+    - Work on Lab 3
+    
+### Wednesday
+- Transformations
+- Diagnostics
+- **For next time:**
+    - Lab 3 due *Friday* night at noon
