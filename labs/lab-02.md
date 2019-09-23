@@ -110,10 +110,13 @@ derivation at all, you just have to be sure you’re careful in your
 notation. If you’re new to , draw examples from the source files on the
 website. Please post to slack if you have questions.
 
-One you have a form for each of these terms, construct a plot that shows
-the decomposition of the MSE into its components as a function of \(k\)
-(this is a formal version of your sketch from the handout). Use the
-following as your training data set:
+One you have a form for each of these terms, **construct a plot** that
+shows the decomposition of the MSE into its components as a function of
+\(k\) (this is a formal version of your sketch from the handout).
+
+-----
+
+Use the following as your training data set:
 
 ``` r
 library(tidyverse)
@@ -147,8 +150,45 @@ ggplot(df, aes(x = k, y = f_k)) +
 
 ![](lab-02_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
-The final component that you’ll need is a form of \(f\), the true
-regression function. This is unknown in practice, but let’s say here
-that we know it to be:
+The final components that you’ll need are a form of \(f\), the true
+regression function, and the amount of noise,
+\(Var(\epsilon) = \sigma^2\). These are unknown in practice, but let’s
+say that \(sigma^2 = 1\) and that we know the true function to be:
 
 \[f = -9.3 + 2.6 x - 0.3 x^2 + .01 x^3\]
+
+We can visualize the training data, the fitted model in blue (say, with
+k = 3) and the true model in gold.
+
+``` r
+knn <- function(x, k, training_data) { # from week 3 slides
+  n <- length(x)
+  y_hat <- rep(NA, n)
+  for (i in 1:n) {
+    dists <- abs(x[i] - training_data$x)
+    neighbors <- order(dists)[1:k]
+    y_hat[i] <- mean(training_data$y[neighbors])
+  }
+  y_hat
+}
+
+x_seq <- seq(.5, 12.5, length.out = 300)
+y_hat <- knn(x = x_seq,
+             k = 3, 
+             training_data = df_train)
+
+f <- function(x) {
+  f = -9.3 + 2.6 * x - 0.3 * x^2 + .01 * x^3
+}
+
+df_lines <- tibble(x = rep(x_seq, 2),
+                   y = c(f(x_seq), y_hat),
+                   type = rep(c("f", "f_hat"), each = length(x_seq)))
+
+ggplot(df_train, aes(x = x, y = y)) +
+  geom_point() +
+  theme_bw() +
+  geom_line(data = df_lines, aes(col = type))
+```
+
+![](lab-02_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
