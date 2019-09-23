@@ -66,4 +66,4 @@ No class
 - Transformations
 - Diagnostics
 - **For next time:**
-    - Lab 3 due *Friday* night at noon
+    - Lab 3 due *Friday* at noon
