@@ -116,15 +116,17 @@ the decomposition of the MSE into its components as a function of \(k\)
 following as your training data set:
 
 ``` r
+library(tidyverse)
 x <- c(1:3, 5:12)
-y <- c(-7.1, -7.1, .5, -3.6, -2, -1.7, -4, -.2, -1.2, -1.2, -3.5)
+y <- c(-7.1, -7.1, .5, -3.6, -2, -1.7,
+       -4, -.2, -1.2, -1.2, -3.5)
+df_train <- tibble(x, y)
 ```
 
 And the following example of how to plot a function of \(k\) (with the
 training data fixed).
 
 ``` r
-library(tidyverse)
 my_fun <- function(k, x, y) {
   f_k <- rep(NA, length(k))
   for (i in 1:length(k)) {
@@ -144,3 +146,9 @@ ggplot(df, aes(x = k, y = f_k)) +
 ```
 
 ![](lab-02_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+The final component that you’ll need is a form of \(f\), the true
+regression function. This is unknown in practice, but let’s say here
+that we know it to be:
+
+\[f = -9.3 + 2.6 x - 0.3 x^2 + .01 x^3\]
