@@ -267,10 +267,12 @@ planes3d(coefs["logsqft"] + coefs["logsqft:cityWestwood"], coefs["bed"], -1,
 Does the relationship between `logsqft` and `logprice` change depending on the number of `bed`?
 
 ```{r}
-m3 <- lm(logprice ~ logsqft + bed + logsqft:bed, data = LA)
+m3 <- lm(logprice ~ logsqft + bed + logsqft:bed, 
+         data = LA)
 ```
 
 ---
+class: small
 ```{r}
 summary(m3)
 ```

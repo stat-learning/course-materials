@@ -273,11 +273,13 @@ the `city`?
 .tiny[
 
 ```r
-m2 &lt;- lm(logprice ~ logsqft + bed + city + logsqft:city, data = LA)
+m2 &lt;- lm(logprice ~ logsqft + bed + city + logsqft:city, 
+         data = LA)
 ```
 ]
 
 ---
+class: small
 
 
 ```r
@@ -322,10 +324,12 @@ Does the relationship between `logsqft` and `logprice` change depending on the n
 
 
 ```r
-m3 &lt;- lm(logprice ~ logsqft + bed + logsqft:bed, data = LA)
+m3 &lt;- lm(logprice ~ logsqft + bed + logsqft:bed, 
+         data = LA)
 ```
 
 ---
+class: small
 
 ```r
 summary(m3)
