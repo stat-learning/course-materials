@@ -3,8 +3,6 @@ output: pdf_document
 ---
 # The Bias-Variance Tradeoff for KNN
 
-Use the following as your training data set:
-
 ```{r message = FALSE, echo = FALSE}
 library(tidyverse)
 x_train <- c(1:3, 5:12)
@@ -16,8 +14,6 @@ my_f <- function(x) {
 sigma <- 1
 df_train <- tibble(x_train, y_train)
 ```
-
-And the following example of how to plot a function of $k$ (with the training data fixed).
 
 ```{r message = FALSE, echo = FALSE, eval = FALSE}
 my_fun <- function(k, x, y) {
@@ -38,11 +34,7 @@ ggplot(df, aes(x = k, y = f_k)) +
   ylab("variability")
 ```
 
-$$f(x) = -9.3 + 2.6 x - 0.3 x^2 + .01 x^3$$
-
-We can visualize the training data, the fitted model in blue (say, with k = 3) and the true model in gold.
-
-```{r eval = FALSE}
+```{r eval = FALSE, echo = FALSE}
 knn <- function(x, k, training_data) { # from week 3 slides
   n <- length(x)
   y_hat <- rep(NA, n)
@@ -60,17 +52,17 @@ y_hat <- knn(x = x_seq,
              training_data = df_train)
 
 f <- function(x) {
-  f(x)= -9.3 + 2.6 * x - 0.3 * x^2 + .01 * x^3
+  -9.3 + 2.6 * x - 0.3 * x^2 + .01 * x^3
 }
 
 df_lines <- tibble(x = rep(x_seq, 2),
                    y = c(f(x_seq), y_hat),
                    type = rep(c("f", "f_hat"), each = length(x_seq)))
 
-ggplot(df_train, aes(x = x, y = y)) +
+ggplot(df_train, aes(x = x_train, y = y_train)) +
   geom_point() +
   theme_bw() +
-  geom_line(data = df_lines, aes(col = type))
+  geom_line(data = df_lines, aes(x = x, y = y, col = type))
 ```
 
 $$
@@ -134,9 +126,11 @@ The bias term is more difficult to discuss generally because it deals with the t
 
 ## Putting it all together.
 
+A single draw from $X$.
+
 ```{r}
 k <- 1:12
-x <- 3
+x <- 1.2
 var_line <- rep(NA, length(k))
 sq_bias_line <- rep(NA, length(k))
 
@@ -156,7 +150,49 @@ df <- tibble(k = rep(k, 4),
              term = term)
 
 ggplot(df, aes(x = k, y = y, col = term)) +
-  geom_line()
+  geom_line() +
+  scale_x_continuous(breaks = 0:13)
 ```
 
+Taking the expected value over many training data sets $X$.
+
+```{r}
+n <- 20
+it <- 100
+var_vec <- rep(NA, length(k) * it)
+sq_bias_vec <- rep(NA, length(k) * it)
+
+for (j in 1:it) {
+  x_train <- runif(n, min = 0, max = 13)
+  #x_train <- rnorm(n, mean = 6.5, sd = sqrt(14))
+  
+  for (i in 1:length(k)) {
+    sq_bias_vec[(j - 1) * length(k) + i] <- bias_term(x, k[i], f = my_f, x_train)^2
+    var_vec[(j - 1) * length(k) + i]     <- var_term(k[i], sigma)
+  }
+}
+
+expected_df <- tibble(var_vec, 
+                      sq_bias_vec,
+                      k = rep(k, it)) %>%
+  group_by(k) %>%
+  summarize(var_line = mean(var_vec), # Take expected value
+            sq_bias_line = mean(sq_bias_vec)) # Take expected value
+
+y <- c(expected_df$var_line,
+       expected_df$sq_bias_line, 
+       rep(sigma^2, length(k)),
+       expected_df$var_line + expected_df$sq_bias_line + sigma^2)
+
+term <- rep(c("variance", "squared bias", 
+              "irreducible error", "MSE"), each = length(k))
+
+df <- tibble(k = rep(k, 4),
+             y = y,
+             term = term)
+
+ggplot(df, aes(x = k, y = y, col = term)) +
+  geom_line() +
+  scale_x_continuous(breaks = 0:13)
+```
 
