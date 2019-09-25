@@ -1,0 +1,193 @@
+---
+title: "Transformations"
+output:
+  xaringan::moon_reader:
+    css: ["fc", "fc-fonts", "reed.css", "default"]
+    lib_dir: libs
+    nature:
+      highlightStyle: atelier-forest-light
+      highlightLines: true
+      highlightSpans: true
+      countIncrementalSlides: false
+---
+
+# Example: Truck prices
+
+Can we use the age of a truck to predict what its price should be?  Consider a 
+random sample of 43 pickup trucks.
+
+--
+
+```{r echo = FALSE, warning=FALSE, message=FALSE, fig.height = 5.5, fig.align = "center"}
+library(tidyverse)
+library(gridExtra)
+pickups <- read.csv("http://andrewpbray.github.io/data/pickup.csv")
+ggplot(pickups, aes(x = year, y = price)) +
+  geom_point(col = "steelblue") +
+  theme_bw()
+```
+
+---
+# Example: Truck prices
+
+Can we use the age of a truck to predict what its price should be?  Consider a 
+random sample of 43 pickup trucks *from the last 20 years*.
+
+--
+
+```{r echo = FALSE, fig.height = 5.5, fig.align = "center"}
+pickups <- filter(pickups, year >= 1994)
+ggplot(pickups, aes(x = year, y = price)) +
+  geom_point(col = "steelblue") +
+  theme_bw()
+m1 <- lm(price ~ year, data = filter(pickups, year >= 1994))
+```
+
+---
+# Linear model?
+
+--
+
+.tiny[
+```{r, echo=FALSE}
+summary(m1)$coef
+```
+]
+
+```{r echo = FALSE, fig.height = 5.5, fig.align = "center"}
+ggplot(pickups, aes(x = year, y = price)) +
+  geom_point(col = "steelblue") +
+  theme_bw() +
+  geom_smooth(method = "lm", se = FALSE, col = "orchid")
+```
+
+
+---
+# Linearity and normality
+
+```{r, echo=FALSE, fig.height = 5.5, fig.align = "center", fig.width=10}
+par(mfrow = c(1, 2))
+plot(m1, 1:2)
+```
+
+--
+
+The normality assumption on the errors seems fine but there seems to be a quadratic
+trend in the mean function.
+
+
+---
+# Constant variance and influence
+
+```{r echo = FALSE, fig.height = 5.5, fig.align = "center", fig.width=10}
+par(mfrow = c(1, 2))
+plot(m1, c(3, 5))
+```
+
+--
+
+One observation (44) should be investigated for its influence.  There is
+evidence of increasing variance in the residuals.
+
+---
+# Transformations
+
+```{r out.width=500, echo = FALSE, fig.align='center'}
+knitr::include_graphics("figs/walter-white.jpg")
+```
+
+Say you fit a linear model to data and find the residual plots look awful. One
+strategy to regain a valid model is to transform your data.
+
+---
+
+.tiny[
+```{r}
+pickups <- mutate(pickups, log_price = log(price))
+```
+]
+
+```{r, echo = FALSE, fig.height=4, message = FALSE, warning=FALSE, fig.align = "center"}
+p1 <- ggplot(pickups, aes(x = price)) +
+  geom_histogram(fill = "steelblue") +
+  theme_bw()
+p2 <- ggplot(pickups, aes(x = log_price)) +
+  geom_histogram(fill = "steelblue") +
+  theme_bw()
+grid.arrange(p1, p2, ncol = 2)
+```
+
+Variables that span multiple orders of magnitude often benefit from a natural
+log transformation.
+
+$$Y_t = log_e(Y)$$
+
+---
+# Log-transformed linear model
+
+.tiny[
+```{r}
+m2 <- lm(log_price ~ year, data = pickups)
+summary(m2)$coef
+```
+]
+
+```{r, echo=FALSE, fig.height = 5.5, fig.align = "center",}
+ggplot(pickups, aes(x = year, y = log_price)) +
+  geom_point(col = "steelblue") +
+  theme_bw() +
+  geom_smooth(method = "lm", se = FALSE, col = "orchid")
+```
+
+
+---
+# Linearity and normality
+
+```{r, echo=FALSE, fig.height = 5.5, fig.align = "center", fig.width=10}
+par(mfrow = c(1, 2))
+plot(m2, 1:2)
+```
+
+--
+
+The residuals from this model appear less normal, though the quadratic trend in
+the mean function is now less apparent.
+
+---
+# Constant variance and influence
+
+```{r echo = FALSE, fig.height = 5.5, fig.align = "center", fig.width=10}
+par(mfrow = c(1, 2))
+plot(m2, c(3, 5))
+```
+
+There are no points flagged as influential and our variance has been stabilized.
+
+---
+# Transformations summary
+
+- If a linear model fit to the raw data leads to questionable residual plots,
+consider transformations.
+
+--
+
+- Count data and prices often benefit from transformations.
+
+--
+
+- The natural log and the square root are the most common, but you can use any 
+transformation you like.
+
+--
+
+- Transformations may change model interpretations.
+
+--
+
+- Non-constant variance is a serious problem but it can often be solved by transforming the response.
+
+--
+
+- Transformations can also fix non-linearity, as can polynomials.
+
+

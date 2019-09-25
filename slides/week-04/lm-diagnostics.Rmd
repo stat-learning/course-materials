@@ -1,0 +1,232 @@
+---
+title: "Model Diagnostics"
+output:
+  xaringan::moon_reader:
+    css: ["fc", "fc-fonts", "reed.css", "default"]
+    lib_dir: libs
+    nature:
+      highlightStyle: atelier-forest-light
+      highlightLines: true
+      highlightSpans: true
+      countIncrementalSlides: false
+---
+
+```{r include = FALSE}
+knitr::opts_chunk$set(fig.align = "center")
+```
+
+
+# A valid model
+
+```{r}
+set.seed(794)
+n <- 80
+x <- runif(n)
+beta_1 <- 3.5
+sigma <- .6
+y <- rnorm(n, mean = beta_1 * x, sd = sigma)
+df <- data.frame(x, y)
+m1 <- lm(y ~ x, data = df)
+```
+
+---
+# A valid model
+
+```{r echo = FALSE}
+library(ggplot2)
+ggplot(df, aes(x = x, y = y)) + 
+  geom_point(col = "steelblue") + 
+  geom_abline(intercept = m1$coef[1], slope = m1$coef[2]) +
+  theme_bw()
+```
+
+---
+# Residual plot
+
+```{r, fig.width = 7, fig.height = 6.5, fig.align="center"}
+plot(m1, 1)
+```
+
+
+---
+# QQ plot
+
+```{r, fig.width = 7, fig.height = 6.5, fig.align="center"}
+plot(m1, 2)
+```
+
+
+---
+# Scale Location plot
+
+```{r, fig.width = 7, fig.height = 6.5, fig.align="center"}
+plot(m1, 3)
+```
+
+
+---
+# Residual plot
+
+```{r, fig.width = 7, fig.height = 6.5, fig.align="center"}
+plot(m1, 4)
+```
+
+
+---
+# Plot Quartet
+
+```{r, fig.width = 7, fig.height = 6.5, fig.align="center"}
+par(mfrow = c(2, 2))
+plot(m1)
+```
+
+
+---
+# What can break?
+
+1. Unbiased estimation of $\hat{\beta}$
+2. Accurate assessment of $SE(\hat{\beta})$
+    - p-values
+    - CI's
+    
+
+---
+# Checking for breaks
+
+```{r}
+it <- 10000
+beta_hats <- rep(NA, it)
+capture <- rep(FALSE, it)
+for(i in 1:it) {
+  y <- rnorm(n, mean = beta_1 * x, sd = sigma)
+  m <- lm(y ~ x)
+  beta_hats[i] <- m$coef[2]
+  ci <- confint(m)[2, ]
+  capture[i] <- (ci[1] < beta_1 & beta_1 < ci[2])
+}
+```
+
+
+---
+# Checking for breaks
+
+.tiny[
+```{r fig.height = 5, warning=FALSE, message = FALSE}
+ggplot(data.frame(beta_hats), aes(x = beta_hats)) +
+  geom_histogram() +
+  geom_vline(xintercept = mean(beta_hats), col = "tomato")
+```
+]
+
+---
+# Checking for breaks
+
+### Bias in $\hat{\beta}$?
+
+--
+
+```{r}
+mean(beta_hats) - beta_1
+```
+
+--
+
+### Accurate assessment of $SE(\hat{\beta})$
+
+--
+
+```{r}
+mean(capture)
+```
+
+
+---
+# Let's break something
+
+## Non-constant variance
+
+```{r}
+set.seed(794)
+n <- 80
+x <- runif(n)
+y <- rnorm(n, mean = beta_1 * x, sd = .93 * x)
+df <- data.frame(x, y)
+m1 <- lm(y ~ x, data = df)
+```
+
+---
+# Non-constant variance
+
+```{r, echo = FALSE}
+ggplot(df, aes(x = x, y = y)) + 
+  geom_point(col = "steelblue") + 
+  geom_abline(intercept = m1$coef[1], slope = m1$coef[2]) +
+  theme_bw()
+```
+
+---
+# Plot Quartet
+
+```{r, fig.width = 7, fig.height = 7, fig.align="center", echo = FALSE}
+par(mfrow = c(2, 2))
+plot(m1)
+```
+
+
+---
+# Checking for breaks
+
+```{r}
+it <- 10000
+beta_hats <- rep(NA, it)
+capture <- rep(FALSE, it)
+for(i in 1:it) {
+  y <- rnorm(n, mean = beta_1 * x, sd = .93 * x)
+  m <- lm(y ~ x)
+  beta_hats[i] <- m$coef[2]
+  ci <- confint(m)[2, ]
+  capture[i] <- (ci[1] < beta_1 & beta_1 < ci[2])
+}
+```
+
+
+---
+# Checking for breaks
+
+.tiny[
+```{r fig.height = 5, warning=FALSE, message = FALSE}
+ggplot(data.frame(beta_hats), aes(x = beta_hats)) +
+  geom_histogram() +
+  geom_vline(xintercept = mean(beta_hats), col = "tomato")
+```
+]
+
+
+---
+# Checking for breaks
+
+### Bias in $\hat{\beta}$?
+
+--
+
+```{r}
+mean(beta_hats) - beta_1
+```
+
+--
+
+### Accurate assessment of $SE(\hat{\beta})$
+
+--
+
+```{r}
+mean(capture)
+```
+
+
+---
+# What else can go wrong?
+
+1. Normality of errors
+2. Independence of errors
+3. Linear trend in mean function
