@@ -58,12 +58,14 @@ No class
 - Review MSE for KNN (from Lab 2)
 - Geometry of MLR (housing prices activity)
 - Assesssing Model Fit
-- Transformations
 - **For next time:**
     - Work on Lab 3
     
 ### Wednesday
-- Transformations
 - Diagnostics
+    - Model Validity
+    - Outliers
+    - Transformations
+    - Multicollinearity
 - **For next time:**
     - Lab 3 due *Friday* at noon
