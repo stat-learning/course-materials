@@ -1,0 +1,162 @@
+---
+output: pdf_document
+---
+# The Bias-Variance Tradeoff for KNN
+
+Use the following as your training data set:
+
+```{r message = FALSE, echo = FALSE}
+library(tidyverse)
+x_train <- c(1:3, 5:12)
+y_train <- c(-7.1, -7.1, .5, -3.6, -2, -1.7,
+       -4, -.2, -1.2, -1.2, -3.5)
+my_f <- function(x) {
+  -9.3 + 2.6 * x - 0.3 * x^2 + .01 * x^3
+}
+sigma <- 1
+df_train <- tibble(x_train, y_train)
+```
+
+And the following example of how to plot a function of $k$ (with the training data fixed).
+
+```{r message = FALSE, echo = FALSE, eval = FALSE}
+my_fun <- function(k, x, y) {
+  f_k <- rep(NA, length(k))
+  for (i in 1:length(k)) {
+    f_k[i] <- sum(k[i] + y + x)
+  }
+  f_k
+}
+
+k <- 1:10
+f_k <- my_fun(k, x, y)
+
+df <- tibble(k = k, f_k = f_k)
+ggplot(df, aes(x = k, y = f_k)) +
+  geom_line(col = "tomato") +
+  theme_bw() +
+  ylab("variability")
+```
+
+$$f(x) = -9.3 + 2.6 x - 0.3 x^2 + .01 x^3$$
+
+We can visualize the training data, the fitted model in blue (say, with k = 3) and the true model in gold.
+
+```{r eval = FALSE}
+knn <- function(x, k, training_data) { # from week 3 slides
+  n <- length(x)
+  y_hat <- rep(NA, n)
+  for (i in 1:n) {
+    dists <- abs(x[i] - training_data$x)
+    neighbors <- order(dists)[1:k]
+    y_hat[i] <- mean(training_data$y[neighbors])
+  }
+  y_hat
+}
+
+x_seq <- seq(.5, 12.5, length.out = 300)
+y_hat <- knn(x = x_seq,
+             k = 3, 
+             training_data = df_train)
+
+f <- function(x) {
+  f(x)= -9.3 + 2.6 * x - 0.3 * x^2 + .01 * x^3
+}
+
+df_lines <- tibble(x = rep(x_seq, 2),
+                   y = c(f(x_seq), y_hat),
+                   type = rep(c("f", "f_hat"), each = length(x_seq)))
+
+ggplot(df_train, aes(x = x, y = y)) +
+  geom_point() +
+  theme_bw() +
+  geom_line(data = df_lines, aes(col = type))
+```
+
+$$
+E \left[ (y - \hat{f}(x))^2 \right] = Var(\hat{f}(x)) + \left[ E (f(x) - \hat{f}(x)) \right]^2 + Var(\epsilon)
+$$
+
+
+## Variance
+
+The variance term captures the degree to which the model, $\hat{f}(x)$ will vary from one data set to the next. This term can be better understood by replacing $\hat{f}(x)$ with the expression for the KNN model and use the properties of variance to simplify.
+
+$$
+\begin{aligned}
+Var(\hat{f}(x)) &= Var(\frac{1}{k} \sum_{x_i \in \mathcal{N}(x)} y_i) \\
+ &= \frac{1}{k^2}\sum_{x_i \in \mathcal{N}(x)} Var(y_i) \\
+ &= \frac{1}{k^2}\sum_{x_i \in \mathcal{N}(x)} \sigma^2 \\
+ &= \frac{1}{k^2} k \sigma^2 \\
+ &= \frac{\sigma^2}{k} 
+\end{aligned}
+$$
+
+Line 3 is true because $Var(y_i) = Var(f + \epsilon) = Var(f) + Var(\epsilon) = 0 + \sigma^2$. This final expression looks familiar: it's the variance of a sample mean. In the KNN model, that's exactly what $\hat{f}(x)$ is: a sample mean of $k$ $y_i$ values.
+
+We can write the variance as a function of $k$ (and $\sigma^2$) as follows.
+
+```{r}
+var_term <- function(k, sigma) {
+  sigma^2 / k
+}
+```
+
+
+## Bias
+
+The bias is the amount by which the expected fitted model diverges from the true model. To better understand this term, we start by substituting in the form of the KNN model and apply the properties of expected value.
+
+$$
+\begin{aligned}
+E(f(x) - \hat{f}(x)) &= E(f(x)) - E(\hat{f}(x)) \\
+ &= f(x)- E(\frac{1}{k} \sum_{x_i \in \mathcal{N}(x)} y_i) \\
+ &= f(x)- \frac{1}{k} \sum_{x_i \in \mathcal{N}(x)} E(y_i) \\
+ &= f(x)- \frac{1}{k} \sum_{x_i \in \mathcal{N}(x)} f(x_i)
+\end{aligned}
+$$
+
+This tells us that the bias at any point $x$ is the value of $f$ at that point minus the average of the values of the true regression function evaluated at the $k$ points $x_i$ in the training data that are nearest to $x$.
+
+We can write this term as a function of $k$ (and $x$, $f$, and the training $x_i$) as follows.
+
+```{r}
+bias_term <- function(x, k, f, x_train) {
+  abs_distances <- abs(x - x_train)
+  which_k <- order(abs_distances)[1:k]
+  x_train_in_N <- x_train[which_k]
+  f(k) - mean(f(x_train_in_N))
+}
+```
+
+The bias term is more difficult to discuss generally because it deals with the true regression function $f$. This is not known in practice, so the sort of analysis that we are conducting presently has to be couched as, "If the true function was *this*, then the bias-variance trade-off would look like *that*".
+
+
+## Putting it all together.
+
+```{r}
+k <- 1:12
+x <- 3
+var_line <- rep(NA, length(k))
+sq_bias_line <- rep(NA, length(k))
+
+for (i in 1:length(k)) {
+  sq_bias_line[i] <- bias_term(x, k[i], f = my_f, x_train)^2
+  var_line[i] <- var_term(k[i], sigma)
+}
+y <- c(var_line,
+       sq_bias_line, 
+       rep(sigma^2, length(k)),
+       var_line + sq_bias_line + sigma^2)
+term <- rep(c("variance", "squared bias", 
+              "irreducible error", "MSE"), each = length(k))
+
+df <- tibble(k = rep(k, 4),
+             y = y,
+             term = term)
+
+ggplot(df, aes(x = k, y = y, col = term)) +
+  geom_line()
+```
+
+
