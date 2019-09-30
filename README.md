@@ -77,11 +77,12 @@ No class
 - Regression Competition Results
 - Automated Model Selection
 - **For next time:**
-    - TBA
+    - Revise `lab-03.Rmd` according to Activity at end of slides
+    - Read p. 203 - 227
     
 ### Wednesday
 - Penalized Regression
     - Ridge
     - Lasso
 - **For next time:**
-    - TBA
+    - Lab 4
