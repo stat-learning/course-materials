@@ -1,0 +1,43 @@
+\documentclass{article}
+\usepackage{graphicx, color, hyperref, fancyhdr}
+\usepackage{courier}
+
+%\input{../brayTeachingStyle}
+
+\usepackage[top=.5in, bottom=.5in, left=1.1in, right=1.1in]{geometry}
+\thispagestyle{empty}
+\renewcommand{\arraystretch}{1.8}
+\setlength{\tabcolsep}{8pt}
+\begin{document}
+
+\begin{center}
+\textsc{Math 243: Statistical Learning : Coding Workshop} \\
+\noindent\rule{12cm}{0.4pt}
+\end{center}
+
+\vspace{5mm}
+
+<<eval = FALSE>>=
+group_X_fit <- function(training_data) {
+  m1 <- lm(ViolentCrimesPerPop~ I(MalePctDivorce^(1/2)) + I(PctUrbanr^(1/3)) + PctIlleg + 
+             PctUrban + MedRent, d)
+  m1
+}
+
+group_X_MSE <- function(model, data) {
+  n <- nrow(data)
+  MSE <- sum((data - predict(m1)) ^ 2)/n
+  return(MSE)
+}
+@
+
+\begin{enumerate}
+\item For the code above, enumerate a list of the items you would change to improve the correctness, clarity, and efficiency of this code.
+
+\vspace{80mm}
+
+\item Write a new function \texttt{group\_X\_process()} that does any data processing transformation steps that are necessary for both the training and testing data. Also rewrite the now shorter \texttt{group\_X\_fit()} function.
+
+\end{enumerate}
+
+\end{document}
