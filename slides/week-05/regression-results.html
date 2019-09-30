@@ -22,9 +22,15 @@ class: center, middle, inverse, title-slide
 # Scoring 
 
 - Coding errors were corrected
+
+--
+
 - For each group, calculate
     - train MSE
     - test MSE on full test data set
+    
+--
+
 - Remember: sampling variability!
     
 
@@ -51,27 +57,148 @@ class: center, middle, inverse, title-slide
 
 In the top 4 models, the types of variables used were  . . .
 
+
+
 --
 
 ### Twice
-poverty, median income, urban
+high school graduation rate, kids with two parents
 
 --
 
 ### Thrice
-illegal immigration, race
+kids born to unmarried parents
 
 --
 
 ### Fource
-kids with two parents
+race
+
+---
+# Improving Our Code
+
+---
+# 1. Pass in what you need
+
+
+```r
+myfun &lt;- function(x, y) {
+  lm(y ~ x, data = df)
+}
+```
+
+--
+vs.
+
+
+```r
+myfun &lt;- function(x, y, df) {
+  lm(y ~ x, data = df)
+}
+```
+
+
+---
+# 2. Take advantage of lm()
+
+
+```r
+myfun &lt;- function(df) {
+  lm(df$y ~ df$x)
+}
+```
+
+--
+vs.
+
+
+```r
+myfun &lt;- function(df) {
+  lm(y ~ x, df)
+}
+```
+
+
+---
+# 3. Use built-in functions where possible
+
+
+```r
+myfun &lt;- function(m1, df) {
+  m1$coef[1] + m1$coef[2] * df[ ,1]
+}
+```
+
+--
+vs.
+
+
+```r
+myfun &lt;- function(m1, df) {
+  predict(m1, df)
+}
+```
+
+
+---
+# 4. Keep things tidy (80 character per line)
+
+
+```r
+group_X_fit &lt;- function(training_data) {
+  m1 &lt;- lm(ViolentCrimesPerPop~ I(MalePctDivorce^(1/2)) + I(PctUrbanr^(1/3)) + PctIlleg + 
+             PctUrban + MedRent, d)
+  m1
+}
+```
+
+--
+vs.
+
+
+```r
+group_X_fit &lt;- function(training_data) {
+  m1 &lt;- lm(ViolentCrimesPerPop ~ 
+             I(MalePctDivorce^(1/2)) + 
+             I(PctUrbanr^(1/3)) + 
+             PctIlleg + 
+             PctUrban + 
+             MedRent, d)
+  m1
+}
+```
+
+
+---
+# 5. Think towards general usage
+
+
+```r
+myfun &lt;- function(m1, df) {
+  mean((df$response - predict(m1))^2)
+}
+```
+
+vs.
+
+
+```r
+myfun &lt;- function(m1, df) {
+  mean((df$response - predict(m1, df))^2)
+}
+```
+
+
+
 
 ---
 # Model Selection
 
 
 ---
-## Activity
+class: small
+
+# Activity
 
 Use the `leaps` package and the `regsubsets()` function to perform model selection on the crimes data set. Start with forward selection to `nvmax = 25`. The general form of the function is:
 
@@ -85,6 +212,11 @@ Notes:
 - Try investigating the output of this function by plotting it using `plot()` and calling on its `attributes()` and `str()`ucture.
 - If you complete forward selection, try backwards and compare.
 - If you complete both and have a sense of a good model, fit it and compute it's test MSE.
+
+
+### By Tuesday 11:59 pm
+
+Revise `lab-03.Rmd` to include an additional model fitting function called `group_X_automated_fit()` and `group_X_process()`.
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
