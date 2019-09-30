@@ -69,3 +69,19 @@ No class
     - Multicollinearity
 - **For next time:**
     - Lab 3 due *Friday* at noon
+    
+
+## Week 5
+
+### Monday
+- Regression Competition Results
+- Automated Model Selection
+- **For next time:**
+    - TBA
+    
+### Wednesday
+- Penalized Regression
+    - Ridge
+    - Lasso
+- **For next time:**
+    - TBA
