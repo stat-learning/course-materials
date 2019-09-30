@@ -1,0 +1,166 @@
+---
+title: "Regression Competition Results"
+output:
+  xaringan::moon_reader:
+    css: ["fc", "fc-fonts", "reed.css", "default"]
+    lib_dir: libs
+    nature:
+      highlightStyle: atelier-forest-light
+      highlightLines: true
+      highlightSpans: true
+      countIncrementalSlides: false
+---
+
+```{r, include = FALSE}
+source("lab-03-results-data.R")
+library(knitr)
+library(tidyverse)
+library(wesanderson)
+opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center",
+               fig.width = 10)
+```
+
+# Scoring 
+
+- Coding errors were corrected
+- For each group, calculate
+    - train MSE
+    - test MSE on full test data set
+- Remember: sampling variability!
+    
+
+---
+# Training MSE
+
+```{r}
+group_ranks <- results %>%
+  filter(model_type == "bespoke",
+         setting == "test") %>%
+  arrange(MSE) %>%
+  pull(group)
+
+results  <- results %>%
+  mutate(group = factor(group, 
+                        levels = group_ranks))
+
+results %>%
+  filter(model_type == "bespoke",
+         setting == "train") %>%
+  ggplot(aes(x = group, y = MSE, col = setting)) + 
+  geom_point(size = 5) +
+  ylim(0, .031) +
+  xlab("Group") + 
+  ylab("MSE") + 
+  scale_colour_manual(values = wes_palette("Cavalcanti1")[4]) +
+  theme_bw() +
+  theme(text = element_text(size = 25))
+```
+
+
+---
+# Training MSE + Testing MSE
+
+```{r}
+results %>%
+  filter(model_type == "bespoke") %>%
+  ggplot(aes(x = group, y = MSE, col = setting)) + 
+  geom_point(size = 5) +
+  ylim(0, .031) +
+  xlab("Group") + 
+  ylab("MSE") + 
+  scale_colour_manual(values = wes_palette("Cavalcanti1")[c(5, 4)]) +
+  theme_bw() +
+  theme(text = element_text(size = 25))
+```
+
+
+---
+# Bias - Variance Tradeoff
+
+```{r fig.align='center'}
+results %>%
+  filter(model_type == "bespoke") %>%
+  ggplot(aes(x = p, y = MSE, col = setting)) +
+  geom_line(lwd = 3) +
+  ylim(0, .031) +
+  scale_x_log10() + 
+  scale_colour_manual(values = wes_palette("Cavalcanti1")[c(5, 4)]) +
+  theme_bw() +
+  theme(text = element_text(size = 25))
+```
+
+
+---
+# Variable usage
+
+In the top 4 models, the types of variables used were  . . .
+
+```{r echo = FALSE, eval = FALSE}
+train %>%
+  group_A_process() %>%
+  group_A_fit() %>%
+  coef() %>%
+  names()
+
+train %>%
+  group_I_process() %>%
+  group_I_fit() %>%
+  coef() %>%
+  names()
+
+train %>%
+  group_E_process() %>%
+  group_E_fit() %>%
+  coef() %>%
+  names()
+
+train %>%
+  group_B_process() %>%
+  group_B_fit() %>%
+  coef() %>%
+  names()
+```
+
+```{r}
+train %>%
+  lm(log(ViolentCrimesPerPop + .001) ~ PctIlleg + pctUrban + 
+       racePctWhite + PctKids2Par + medIncome, data = .) %>%
+  summary()
+
+```
+
+--
+
+### Twice
+high school graduation rate, kids with two parents
+
+--
+
+### Thrice
+kids born to unmarried parents
+
+--
+
+### Fource
+race
+
+---
+# Model Selection
+
+
+---
+## Activity
+
+Use the `leaps` package and the `regsubsets()` function to perform model selection on the crimes data set. Start with forward selection to `nvmax = 25`. The general form of the function is:
+
+```
+regsubsets(y ~ ., data = train, nvmax = 25, method = "forward")
+```
+
+Notes:
+
+- You will need to do some `select()`ing before you can toss the training data set in there.
+- Try investigating the output of this function by plotting it using `plot()` and calling on its `attributes()` and `str()`ucture.
+- If you complete forward selection, try backwards and compare.
+- If you complete both and have a sense of a good model, fit it and compute it's test MSE.
+
