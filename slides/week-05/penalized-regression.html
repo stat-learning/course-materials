@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Penalized Regression</title>
+    <meta charset="utf-8" />
+    <link href="libs/remark-css-0.0.1/fc.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/fc-fonts.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="reed.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Penalized Regression
+
+---
+
+
+# Example: Credit
+
+Can we predict the balance that someone will carry on their Credit card?
+
+--
+
+.tiny[
+
+```r
+library(ISLR)
+library(tidyverse)
+data(Credit)
+dim(Credit)
+```
+
+```
+## [1] 400  12
+```
+
+```r
+head(Credit)
+```
+
+```
+##   ID  Income Limit Rating Cards Age Education Gender Student Married
+## 1  1  14.891  3606    283     2  34        11   Male      No     Yes
+## 2  2 106.025  6645    483     3  82        15 Female     Yes     Yes
+## 3  3 104.593  7075    514     4  71        11   Male      No      No
+## 4  4 148.924  9504    681     3  36        11 Female      No      No
+## 5  5  55.882  4897    357     2  68        16   Male      No     Yes
+## 6  6  80.180  8047    569     4  77        10   Male      No      No
+##   Ethnicity Balance
+## 1 Caucasian     333
+## 2     Asian     903
+## 3     Asian     580
+## 4     Asian     964
+## 5 Caucasian     331
+## 6 Caucasian    1151
+```
+]
+
+---
+# Least Squares
+
+
+```r
+m1 &lt;- lm(Balance ~ ., data = Credit)
+summary(m1)$coef
+```
+
+```
+##                         Estimate  Std. Error     t value      Pr(&gt;|t|)
+## (Intercept)        -487.07423743 36.73406787 -13.2594691  2.424226e-33
+## ID                    0.04104764  0.04342822   0.9451835  3.451549e-01
+## Income               -7.80739871  0.23430821 -33.3210634 9.387337e-116
+## Limit                 0.19052127  0.03278566   5.8111159  1.297751e-08
+## Rating                1.14248766  0.49100242   2.3268473  2.048879e-02
+## Cards                17.83638753  4.34324353   4.1066975  4.899543e-05
+## Age                  -0.62954679  0.29449493  -2.1377169  3.316574e-02
+## Education            -1.09830902  1.59817101  -0.6872287  4.923502e-01
+## GenderFemale         -9.54615446  9.98430546  -0.9561160  3.396105e-01
+## StudentYes          426.16715394 16.73077463  25.4720516  9.393819e-85
+## MarriedYes           -8.78055030 10.36758355  -0.8469235  3.975612e-01
+## EthnicityAsian       16.85751762 14.12111625   1.1937808  2.332950e-01
+## EthnicityCaucasian    9.29289272 12.24194143   0.7591029  4.482531e-01
+```
+
+
+---
+class: small
+
+# Ridge regression
+
+
+```r
+X &lt;- model.matrix(Balance ~ ., data = Credit)[, -1]
+X[1:2, ]
+```
+
+--
+
+
+```
+##   ID  Income Limit Rating Cards Age Education GenderFemale StudentYes
+## 1  1  14.891  3606    283     2  34        11            0          0
+## 2  2 106.025  6645    483     3  82        15            1          1
+##   MarriedYes EthnicityAsian EthnicityCaucasian
+## 1          1              0                  1
+## 2          1              1                  0
+```
+
+--
+
+
+```r
+Y &lt;- Credit$Balance
+lambdas &lt;- seq(from = 1e4, to = 1e-2, length.out = 100)
+library(glmnet)
+rm1 &lt;- glmnet(x = X, y = Y, alpha = 0, 
+              lambda = lambdas, standardize = TRUE)
+class(rm1)
+```
+
+```
+## [1] "elnet"  "glmnet"
+```
+
+---
+class: small
+
+# Digression: classes and methods in R
+
+Certain functions in R have different *methods* (i.e. functionality) when used on objects of different *class*.
+
+--
+
+
+```r
+slice(iris, 1:3)
+```
+
+```
+##   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 1          5.1         3.5          1.4         0.2  setosa
+## 2          4.9         3.0          1.4         0.2  setosa
+## 3          4.7         3.2          1.3         0.2  setosa
+```
+
+---
+
+# Methods for `numeric`
+
+
+```r
+sepal_length &lt;- iris$Sepal.Length
+class(sepal_length)
+```
+
+```
+## [1] "numeric"
+```
+
+--
+
+
+```r
+summary(sepal_length)
+```
+
+--
+
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   4.300   5.100   5.800   5.843   6.400   7.900
+```
+
+---
+
+# Methods for `numeric`, cont.
+
+--
+
+
+```r
+plot(sepal_length)
+```
+
+--
+
+&lt;img src="penalized-regression_files/figure-html/unnamed-chunk-7-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+class: small
+
+# Methods for `lm`
+
+--
+
+
+```r
+lm1 &lt;- lm(Sepal.Length ~ Sepal.Width + Petal.Length, 
+         data = iris)
+class(lm1)
+```
+
+--
+
+
+```
+## [1] "lm"
+```
+
+--
+
+
+```r
+summary(lm1)
+```
+
+--
+
+
+```
+## 
+## Call:
+## lm(formula = Sepal.Length ~ Sepal.Width + Petal.Length, data = iris)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.96159 -0.23489  0.00077  0.21453  0.78557 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   2.24914    0.24797    9.07 7.04e-16 ***
+## Sepal.Width   0.59552    0.06933    8.59 1.16e-14 ***
+## Petal.Length  0.47192    0.01712   27.57  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.3333 on 147 degrees of freedom
+## Multiple R-squared:  0.8402,	Adjusted R-squared:  0.838 
+## F-statistic: 386.4 on 2 and 147 DF,  p-value: &lt; 2.2e-16
+```
+
+---
+class: small
+
+# Methods for `lm`, cont.
+
+--
+
+
+```r
+par(mfrow = c(2, 2))
+plot(lm1)
+```
+
+--
+
+&lt;img src="penalized-regression_files/figure-html/unnamed-chunk-10-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+class: small
+
+# Why does this happen?
+
+Compare this:
+
+--
+
+
+```r
+iris
+```
+
+--
+
+
+```
+##     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species
+## 1            5.1         3.5          1.4         0.2     setosa
+## 2            4.9         3.0          1.4         0.2     setosa
+## 3            4.7         3.2          1.3         0.2     setosa
+## 4            4.6         3.1          1.5         0.2     setosa
+## 5            5.0         3.6          1.4         0.2     setosa
+## 6            5.4         3.9          1.7         0.4     setosa
+## 7            4.6         3.4          1.4         0.3     setosa
+## 8            5.0         3.4          1.5         0.2     setosa
+## 9            4.4         2.9          1.4         0.2     setosa
+## 10           4.9         3.1          1.5         0.1     setosa
+## 11           5.4         3.7          1.5         0.2     setosa
+## 12           4.8         3.4          1.6         0.2     setosa
+## 13           4.8         3.0          1.4         0.1     setosa
+## 14           4.3         3.0          1.1         0.1     setosa
+## 15           5.8         4.0          1.2         0.2     setosa
+## 16           5.7         4.4          1.5         0.4     setosa
+## 17           5.4         3.9          1.3         0.4     setosa
+## 18           5.1         3.5          1.4         0.3     setosa
+## 19           5.7         3.8          1.7         0.3     setosa
+## 20           5.1         3.8          1.5         0.3     setosa
+## 21           5.4         3.4          1.7         0.2     setosa
+## 22           5.1         3.7          1.5         0.4     setosa
+## 23           4.6         3.6          1.0         0.2     setosa
+## 24           5.1         3.3          1.7         0.5     setosa
+## 25           4.8         3.4          1.9         0.2     setosa
+## 26           5.0         3.0          1.6         0.2     setosa
+## 27           5.0         3.4          1.6         0.4     setosa
+## 28           5.2         3.5          1.5         0.2     setosa
+## 29           5.2         3.4          1.4         0.2     setosa
+## 30           4.7         3.2          1.6         0.2     setosa
+## 31           4.8         3.1          1.6         0.2     setosa
+## 32           5.4         3.4          1.5         0.4     setosa
+## 33           5.2         4.1          1.5         0.1     setosa
+## 34           5.5         4.2          1.4         0.2     setosa
+## 35           4.9         3.1          1.5         0.2     setosa
+## 36           5.0         3.2          1.2         0.2     setosa
+## 37           5.5         3.5          1.3         0.2     setosa
+## 38           4.9         3.6          1.4         0.1     setosa
+## 39           4.4         3.0          1.3         0.2     setosa
+## 40           5.1         3.4          1.5         0.2     setosa
+## 41           5.0         3.5          1.3         0.3     setosa
+## 42           4.5         2.3          1.3         0.3     setosa
+## 43           4.4         3.2          1.3         0.2     setosa
+## 44           5.0         3.5          1.6         0.6     setosa
+## 45           5.1         3.8          1.9         0.4     setosa
+## 46           4.8         3.0          1.4         0.3     setosa
+## 47           5.1         3.8          1.6         0.2     setosa
+## 48           4.6         3.2          1.4         0.2     setosa
+## 49           5.3         3.7          1.5         0.2     setosa
+## 50           5.0         3.3          1.4         0.2     setosa
+## 51           7.0         3.2          4.7         1.4 versicolor
+## 52           6.4         3.2          4.5         1.5 versicolor
+## 53           6.9         3.1          4.9         1.5 versicolor
+## 54           5.5         2.3          4.0         1.3 versicolor
+## 55           6.5         2.8          4.6         1.5 versicolor
+## 56           5.7         2.8          4.5         1.3 versicolor
+## 57           6.3         3.3          4.7         1.6 versicolor
+## 58           4.9         2.4          3.3         1.0 versicolor
+## 59           6.6         2.9          4.6         1.3 versicolor
+## 60           5.2         2.7          3.9         1.4 versicolor
+## 61           5.0         2.0          3.5         1.0 versicolor
+## 62           5.9         3.0          4.2         1.5 versicolor
+## 63           6.0         2.2          4.0         1.0 versicolor
+## 64           6.1         2.9          4.7         1.4 versicolor
+## 65           5.6         2.9          3.6         1.3 versicolor
+## 66           6.7         3.1          4.4         1.4 versicolor
+## 67           5.6         3.0          4.5         1.5 versicolor
+## 68           5.8         2.7          4.1         1.0 versicolor
+## 69           6.2         2.2          4.5         1.5 versicolor
+## 70           5.6         2.5          3.9         1.1 versicolor
+## 71           5.9         3.2          4.8         1.8 versicolor
+## 72           6.1         2.8          4.0         1.3 versicolor
+## 73           6.3         2.5          4.9         1.5 versicolor
+## 74           6.1         2.8          4.7         1.2 versicolor
+## 75           6.4         2.9          4.3         1.3 versicolor
+## 76           6.6         3.0          4.4         1.4 versicolor
+## 77           6.8         2.8          4.8         1.4 versicolor
+## 78           6.7         3.0          5.0         1.7 versicolor
+## 79           6.0         2.9          4.5         1.5 versicolor
+## 80           5.7         2.6          3.5         1.0 versicolor
+## 81           5.5         2.4          3.8         1.1 versicolor
+## 82           5.5         2.4          3.7         1.0 versicolor
+## 83           5.8         2.7          3.9         1.2 versicolor
+## 84           6.0         2.7          5.1         1.6 versicolor
+## 85           5.4         3.0          4.5         1.5 versicolor
+## 86           6.0         3.4          4.5         1.6 versicolor
+## 87           6.7         3.1          4.7         1.5 versicolor
+## 88           6.3         2.3          4.4         1.3 versicolor
+## 89           5.6         3.0          4.1         1.3 versicolor
+## 90           5.5         2.5          4.0         1.3 versicolor
+## 91           5.5         2.6          4.4         1.2 versicolor
+## 92           6.1         3.0          4.6         1.4 versicolor
+## 93           5.8         2.6          4.0         1.2 versicolor
+## 94           5.0         2.3          3.3         1.0 versicolor
+## 95           5.6         2.7          4.2         1.3 versicolor
+## 96           5.7         3.0          4.2         1.2 versicolor
+## 97           5.7         2.9          4.2         1.3 versicolor
+## 98           6.2         2.9          4.3         1.3 versicolor
+## 99           5.1         2.5          3.0         1.1 versicolor
+## 100          5.7         2.8          4.1         1.3 versicolor
+## 101          6.3         3.3          6.0         2.5  virginica
+## 102          5.8         2.7          5.1         1.9  virginica
+## 103          7.1         3.0          5.9         2.1  virginica
+## 104          6.3         2.9          5.6         1.8  virginica
+## 105          6.5         3.0          5.8         2.2  virginica
+## 106          7.6         3.0          6.6         2.1  virginica
+## 107          4.9         2.5          4.5         1.7  virginica
+## 108          7.3         2.9          6.3         1.8  virginica
+## 109          6.7         2.5          5.8         1.8  virginica
+## 110          7.2         3.6          6.1         2.5  virginica
+## 111          6.5         3.2          5.1         2.0  virginica
+## 112          6.4         2.7          5.3         1.9  virginica
+## 113          6.8         3.0          5.5         2.1  virginica
+## 114          5.7         2.5          5.0         2.0  virginica
+## 115          5.8         2.8          5.1         2.4  virginica
+## 116          6.4         3.2          5.3         2.3  virginica
+## 117          6.5         3.0          5.5         1.8  virginica
+## 118          7.7         3.8          6.7         2.2  virginica
+## 119          7.7         2.6          6.9         2.3  virginica
+## 120          6.0         2.2          5.0         1.5  virginica
+## 121          6.9         3.2          5.7         2.3  virginica
+## 122          5.6         2.8          4.9         2.0  virginica
+## 123          7.7         2.8          6.7         2.0  virginica
+## 124          6.3         2.7          4.9         1.8  virginica
+## 125          6.7         3.3          5.7         2.1  virginica
+## 126          7.2         3.2          6.0         1.8  virginica
+## 127          6.2         2.8          4.8         1.8  virginica
+## 128          6.1         3.0          4.9         1.8  virginica
+## 129          6.4         2.8          5.6         2.1  virginica
+## 130          7.2         3.0          5.8         1.6  virginica
+## 131          7.4         2.8          6.1         1.9  virginica
+## 132          7.9         3.8          6.4         2.0  virginica
+## 133          6.4         2.8          5.6         2.2  virginica
+## 134          6.3         2.8          5.1         1.5  virginica
+## 135          6.1         2.6          5.6         1.4  virginica
+## 136          7.7         3.0          6.1         2.3  virginica
+## 137          6.3         3.4          5.6         2.4  virginica
+## 138          6.4         3.1          5.5         1.8  virginica
+## 139          6.0         3.0          4.8         1.8  virginica
+## 140          6.9         3.1          5.4         2.1  virginica
+## 141          6.7         3.1          5.6         2.4  virginica
+## 142          6.9         3.1          5.1         2.3  virginica
+## 143          5.8         2.7          5.1         1.9  virginica
+## 144          6.8         3.2          5.9         2.3  virginica
+## 145          6.7         3.3          5.7         2.5  virginica
+## 146          6.7         3.0          5.2         2.3  virginica
+## 147          6.3         2.5          5.0         1.9  virginica
+## 148          6.5         3.0          5.2         2.0  virginica
+## 149          6.2         3.4          5.4         2.3  virginica
+## 150          5.9         3.0          5.1         1.8  virginica
+```
+
+---
+class: small
+
+# Why does this happen? cont.
+
+. . . to this:
+
+--
+
+
+```r
+tibble(iris)
+```
+
+--
+
+
+```
+## # A tibble: 150 x 1
+##    iris$Sepal.Length $Sepal.Width $Petal.Length $Petal.Width $Species
+##                &lt;dbl&gt;        &lt;dbl&gt;         &lt;dbl&gt;        &lt;dbl&gt; &lt;fct&gt;   
+##  1               5.1          3.5           1.4          0.2 setosa  
+##  2               4.9          3             1.4          0.2 setosa  
+##  3               4.7          3.2           1.3          0.2 setosa  
+##  4               4.6          3.1           1.5          0.2 setosa  
+##  5               5            3.6           1.4          0.2 setosa  
+##  6               5.4          3.9           1.7          0.4 setosa  
+##  7               4.6          3.4           1.4          0.3 setosa  
+##  8               5            3.4           1.5          0.2 setosa  
+##  9               4.4          2.9           1.4          0.2 setosa  
+## 10               4.9          3.1           1.5          0.1 setosa  
+## # … with 140 more rows
+```
+
+
+---
+class: small
+
+# Different classes, different methods
+
+--
+
+
+```r
+class(iris)
+```
+
+--
+
+
+```
+## [1] "data.frame"
+```
+
+--
+
+
+```r
+class(tibble(iris))
+```
+
+--
+
+
+```
+## [1] "tbl_df"     "tbl"        "data.frame"
+```
+
+---
+
+--
+
+
+```r
+?print.data.frame
+```
+
+--
+
+&lt;img src="figs/print-data-frame.png" width="620" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+--
+
+
+```r
+?print.tbl
+```
+
+--
+
+&lt;img src="figs/print-tibble.png" width="620" style="display: block; margin: auto;" /&gt;
+
+
+---
+class: small
+
+# Back to ridge regression...
+
+--
+
+
+```r
+rm1 &lt;- glmnet(x = X, y = Y, alpha = 0, 
+              lambda = lambdas, standardize = TRUE)
+class(rm1)
+```
+
+--
+
+
+```
+## [1] "elnet"  "glmnet"
+```
+
+--
+
+
+```r
+summary(rm1)
+```
+
+--
+
+
+```
+##           Length Class     Mode   
+## a0         100   -none-    numeric
+## beta      1200   dgCMatrix S4     
+## df         100   -none-    numeric
+## dim          2   -none-    numeric
+## lambda     100   -none-    numeric
+## dev.ratio  100   -none-    numeric
+## nulldev      1   -none-    numeric
+## npasses      1   -none-    numeric
+## jerr         1   -none-    numeric
+## offset       1   -none-    logical
+## call         6   -none-    call   
+## nobs         1   -none-    numeric
+```
+
+
+---
+class: small
+
+--
+
+
+```r
+str(rm1)
+```
+
+--
+
+
+```
+## List of 12
+##  $ a0       : Named num [1:100] 434 433 432 431 430 ...
+##   ..- attr(*, "names")= chr [1:100] "s0" "s1" "s2" "s3" ...
+##  $ beta     :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
+##   .. ..@ i       : int [1:1200] 0 1 2 3 4 5 6 7 8 9 ...
+##   .. ..@ p       : int [1:101] 0 12 24 36 48 60 72 84 96 108 ...
+##   .. ..@ Dim     : int [1:2] 12 100
+##   .. ..@ Dimnames:List of 2
+##   .. .. ..$ : chr [1:12] "ID" "Income" "Limit" "Rating" ...
+##   .. .. ..$ : chr [1:100] "s0" "s1" "s2" "s3" ...
+##   .. ..@ x       : num [1:1200] 0.000781 0.233122 0.0071 0.106163 1.248821 ...
+##   .. ..@ factors : list()
+##  $ df       : int [1:100] 12 12 12 12 12 12 12 12 12 12 ...
+##  $ dim      : int [1:2] 12 100
+##  $ lambda   : num [1:100] 10000 9899 9798 9697 9596 ...
+##  $ dev.ratio: num [1:100] 0.139 0.14 0.141 0.142 0.144 ...
+##  $ nulldev  : num 84339912
+##  $ npasses  : int 396
+##  $ jerr     : int 0
+##  $ offset   : logi FALSE
+##  $ call     : language glmnet(x = X, y = Y, alpha = 0, lambda = lambdas, standardize = TRUE)
+##  $ nobs     : int 400
+##  - attr(*, "class")= chr [1:2] "elnet" "glmnet"
+```
+
+---
+class: small
+
+
+```r
+rm1$lambda[100]
+```
+
+--
+
+
+```
+## [1] 0.01
+```
+
+--
+
+
+```r
+coef(rm1)[1:4, 100]
+```
+
+--
+
+
+```
+##   (Intercept)            ID        Income         Limit 
+## -492.59495341    0.04129168   -7.80441341    0.17554032
+```
+
+--
+
+
+```r
+coef(m1)[1:4]
+```
+
+--
+
+
+```
+##   (Intercept)            ID        Income         Limit 
+## -487.07423743    0.04104764   -7.80739871    0.19052127
+```
+
+
+---
+
+![](penalized-regression_files/figure-html/unnamed-chunk-25-1.png)&lt;!-- --&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "atelier-forest-light",
+"highlightLines": true,
+"highlightSpans": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
