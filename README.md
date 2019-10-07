@@ -86,3 +86,31 @@ No class
     - Lasso
 - **For next time:**
     - Lab 4
+    
+    
+## Week 6
+
+### Monday
+- Classification
+    - KNN
+    - Logistic Regression
+- **For next time:**
+    - Read p. 127 - 149
+    
+### Wednesday
+- Discriminant Analysis
+- **For next time:**
+    - Lab 5 due Monday
+    - Read p. 149 - 154
+    
+    
+## Week 7
+
+### Monday
+- Classification Errors
+- Extending Discriminant Analysis
+- **For next time:**
+    - Study!
+    
+### Wednesday
+- Midterm I
