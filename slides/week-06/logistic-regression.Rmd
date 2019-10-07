@@ -1,0 +1,327 @@
+---
+title: "Logistic Regression"
+output:
+  xaringan::moon_reader:
+    css: ["fc", "fc-fonts", "reed.css", "default"]
+    lib_dir: libs
+    nature:
+      highlightStyle: atelier-forest-light
+      highlightLines: true
+      highlightSpans: true
+      countIncrementalSlides: false
+---
+
+```{r include = FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, cache = TRUE)
+```
+
+# Example: Credit Default
+
+```{r}
+library(ISLR)
+data(Default)
+head(Default)
+```
+
+---
+# Exploratory Data Analysis
+--
+
+```{r, echo = FALSE, fig.align='center', fig.width=11}
+library(ggplot2)
+library(gridExtra)
+p1 <- ggplot(Default, aes(x = default, y = balance)) +
+  geom_boxplot() + 
+  coord_flip() +
+  theme_bw()
+
+p2 <- ggplot(Default, aes(x = default, y = income)) +
+  geom_boxplot() + 
+  coord_flip() +
+  theme_bw()
+
+grid.arrange(p1, p2, ncol=2)
+```
+
+
+---
+# Model Fitting
+--
+
+```{r m1, eval = FALSE}
+m1 <- glm(default ~ balance, 
+          data = Default,
+          family = binomial)
+coef(m1)
+```
+
+--
+
+```{r ref.label = "m1", echo = FALSE}
+m1 <- glm(default ~ balance, data = Default, family = binomial)
+coef(m1)
+```
+
+---
+# Logistic Model
+--
+
+$$ P(Y = 1 | X = x_i) = \frac{1}{1 + e^{-(-10.65 + 0.0055 x_i)}} $$
+
+--
+
+```{r, echo = FALSE, message=FALSE, fig.align = "center", fig.height = 6}
+library(dplyr)
+Default <- mutate(Default, defaultYes = ifelse(default == "Yes", 1, 0))
+  
+p3 <- ggplot(Default, aes(x = balance, y = defaultYes)) +
+  geom_point(pch = 1, alpha = .3, size = 3) + 
+  ylab("probability of default") + 
+  theme_bw()
+
+p3
+```
+
+
+---
+# Logistic Model
+
+$$ P(Y = 1 | X = x_i) = \frac{1}{1 + e^{-(-10.65 + 0.0055 x_i)}} $$
+
+```{r, echo = FALSE, fig.align = "center", fig.height = 6}
+balance <- seq(0, max(Default$balance), length.out = 500)
+y <- predict(m1, newdata = data.frame(balance), type = "response")
+p_y <- data.frame(balance, y)
+
+p3 + geom_line(data = p_y, aes(x = balance, y = y), lwd = 1.5, col = "steelblue")
+```
+
+
+---
+# Logistic Model Coefficients
+--
+
+.tiny[
+```{r}
+summary(m1)$coef
+```
+]
+
+Where did those SEs come from?
+
+---
+class: small
+# The Likelihood Function
+--
+
+
+48 male bank supervisors were asked to assume the role of the personnel director of a bank and were given a personnel file to judge whether the person should be promoted to a branch manager position. The files given to the participants were identical, except that half of them indicated the candidate was male and the other half indicated the candidate was female. These files were randomly assigned to the supervisiors. For each supervisor we recorded the gender associated with the assigned file and the promotion decision.
+
+--
+
+|           |     promoted|     not promoted     |
+|----------:|:-----------:|:--------------------:|
+|male       |           18|          6           |
+|female     |           14|          10          |
+
+--
+
+*Is this data consistent with the claim that females are unfairly discriminated against in promotion decisions? What statistical method would you use to make that determination?*
+
+---
+# A model for promotion
+--
+
+|       | promoted  | not promoted | p(promoted) |
+|------:|:---------:|:------------:|:-----------:|
+|male   |     18    |      6       | 18/24 = .75 |
+|female |     14    |      10      | 14/24 = .58 |
+
+--
+
+Suppose:
+
+1. Each decision was independent.
+2. All males were promoted with the same probability $p_{M}$.
+3. All females were promoted with the same probability $p_{F}$.
+
+--
+
+$$Y \sim \textrm{binomial}(n = 24, p = p_{M}) \\
+X \sim \textrm{binomial}(n = 24, p = p_{F})$$
+
+---
+# From Probability to Likelihood
+--
+
+$$
+P(\color{red}{y}, \color{red}{x} | n, p_M, p_F) = {n \choose \color{red}{y}} p_M^\color{red}{y} (1 - p_M)^{n-\color{red}{y}} {n \choose \color{red}{x}} p_F^\color{red}{x} (1 - p_F)^{n-\color{red}{x}}
+$$
+
+--
+
+vs.
+
+--
+
+$$
+L(\color{red}{p_M}, \color{red}{p_F} | n, y, x) = {n \choose y} \color{red}{p_M}^y (1 - \color{red}{p_M})^{n-y} {n \choose x} \color{red}{p_F}^x (1 - \color{red}{p_F})^{n-x}
+$$
+
+
+---
+# The Likelihood Function
+--
+
+```{r, echo = FALSE, fig.align='center', fig.height=7.5, fig.width=8.5, cache = TRUE}
+pPromote <- seq(0, 1, .001)
+Lfn <- function(pYgM, pYgF, tab, loglik = TRUE) {
+  lik <- dbinom(tab[1, 1], rowSums(tab)[1], pYgM) * dbinom(tab[2, 1], rowSums(tab)[2], pYgF)
+  if (loglik) {
+    return(log(lik))
+  } else {return(lik)}
+}
+tab <- data.frame(c(18, 14), c(6, 10), row.names = c("male", "female"))
+lik <- outer(pPromote, pPromote, tab = tab, FUN = Lfn, loglik = FALSE)
+
+# plot surface in original coordinates
+library(ggplot2); library(RColorBrewer)
+mypal <- colorRampPalette(brewer.pal(9 , "YlOrRd"))
+xyz <- data.frame(x = rep(pPromote, length(pPromote)),
+                    y = rep(pPromote, each = length(pPromote)),
+                    z = c(lik))
+xyz$zbinned <- cut(xyz$z, breaks = 9)
+p <- ggplot(xyz) + aes(x = x, y = y, fill = zbinned) +
+  geom_tile() +
+  scale_fill_manual(values = mypal(9), labels = c("low", "", "", "",
+                           "medium", "", "", "", "high"),
+                    guide = guide_legend(reverse=TRUE)) +
+  labs(x = expression(p[male]), y = expression(p[female]), fill = "Likelihood") +
+  theme_bw()
+p
+```
+
+
+---
+# The Likelihood Function
+
+```{r, echo = FALSE, fig.align='center', fig.height=7.5, fig.width=8.5, cache = TRUE}
+p + geom_abline(intercept = 0, slope = 1, lwd = 10,  
+             color = "cadetblue", alpha = .4)
+```
+
+
+---
+# Likelihood Function, more data
+--
+
+```{r, echo = FALSE, fig.align='center', fig.height=7.5, fig.width=8.5, cache = TRUE}
+tab5 <- tab * 5 
+xyz$z5 <- c(outer(pPromote, pPromote, tab = tab5, FUN = Lfn, loglik = FALSE))
+xyz$z5binned <- cut(xyz$z5, breaks = 9)
+p <- ggplot(xyz) + aes(x = x, y = y, fill = z5binned) +
+  geom_tile() +
+  scale_fill_manual(values = mypal(9), labels = c("low", "", "", "",
+                           "medium", "", "", "", "high"),
+                    guide = guide_legend(reverse=TRUE)) +
+  labs(x = expression(p[male]), y = expression(p[female]), fill = "Likelihood") +
+  theme_bw()
+p + geom_abline(intercept = 0, slope = 1, lwd = 10,
+             color = "cadetblue", alpha = .4)
+```
+
+
+---
+# Likelihood Function, even more data
+--
+
+```{r, echo = FALSE, fig.align='center', fig.height=7.5, fig.width=8.5, cache = TRUE}
+tab12 <- tab * 12 
+xyz$z12 <- c(outer(pPromote, pPromote, tab = tab12, FUN = Lfn, loglik = FALSE))
+xyz$z12binned <- cut(xyz$z12, breaks = 9)
+p <- ggplot(xyz) + aes(x = x, y = y, fill = z12binned) +
+  geom_tile() +
+  scale_fill_manual(values = mypal(9), labels = c("low", "", "", "",
+                           "medium", "", "", "", "high"),
+                    guide = guide_legend(reverse=TRUE)) +
+  labs(x = expression(p[male]), y = expression(p[female]), fill = "Likelihood") +
+  theme_bw()
+p + geom_abline(intercept = 0, slope = 1, lwd = 10,
+             color = "cadetblue", alpha = .4)
+```
+
+
+---
+# Multiple Logisitic Regression
+--
+
+Add student as a predictor?
+
+--
+
+```{r echo=FALSE, fig.align='center', fig.height = 6.5}
+ggplot(Default, aes(x = student, y = balance)) +
+  geom_boxplot() + 
+  coord_flip() +
+  theme_bw()
+```
+
+
+---
+class: small
+# Multiple Logistic Model
+--
+
+```{r}
+m2 <- glm(default ~ balance + student, 
+          data = Default, 
+          family = binomial)
+summary(m2)$coef
+```
+
+What's going on?
+
+
+---
+# Multiple Logistic Model, cont.
+--
+
+```{r echo = FALSE, fig.align = "center", fig.width = 10}
+balance <- rep(seq(0, max(Default$balance), length.out = 500), 2)
+student <- c(rep("Yes", 500), rep("No", 500))
+y <- predict(m2, newdata = data.frame(balance, student), type = "response")
+p_y <- data.frame(balance, student, y)
+
+p3 + geom_line(data = p_y, aes(x = balance, y = y, color = student), lwd = 1.3)
+```
+
+
+
+
+
+
+
+
+
+
+---
+
+```{r, echo = FALSE, eval = FALSE}
+Default <- mutate(Default, balance2 = (balance - mean(balance))/sd(balance))
+xx <- Default$balance2
+yy <- Default$default == "Yes"
+
+l <- function(betas, x, y) {
+  beta_0 <- betas[1]
+  beta_1 <- betas[2]
+  #sum(-log(1 + exp(beta_0 + beta_1 * x))) + sum(y * (beta_0 + beta_1 * x))
+  sum(y * (beta_0 + beta_1 * x) - log(1 + exp(beta_0 + beta_1 * x)))
+}
+
+o <- optim(c(-10, 0), l, x = Default$balance2, y = yy)
+```
+
+
+
+

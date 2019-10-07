@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Logistic Regression</title>
+    <meta charset="utf-8" />
+    <link href="libs/remark-css-0.0.1/fc.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/fc-fonts.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="reed.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Logistic Regression
+
+---
+
+
+
+
+# Example: Credit Default
+
+
+```r
+library(ISLR)
+data(Default)
+head(Default)
+```
+
+```
+##   default student   balance    income
+## 1      No      No  729.5265 44361.625
+## 2      No     Yes  817.1804 12106.135
+## 3      No      No 1073.5492 31767.139
+## 4      No      No  529.2506 35704.494
+## 5      No      No  785.6559 38463.496
+## 6      No     Yes  919.5885  7491.559
+```
+
+---
+# Exploratory Data Analysis
+--
+
+&lt;img src="logistic-regression_files/figure-html/unnamed-chunk-3-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Model Fitting
+--
+
+
+```r
+m1 &lt;- glm(default ~ balance, 
+          data = Default,
+          family = binomial)
+coef(m1)
+```
+
+--
+
+
+```
+##   (Intercept)       balance 
+## -10.651330614   0.005498917
+```
+
+---
+# Logistic Model
+--
+
+$$ P(Y = 1 | X = x_i) = \frac{1}{1 + e^{-(-10.65 + 0.0055 x_i)}} $$
+
+--
+
+&lt;img src="logistic-regression_files/figure-html/unnamed-chunk-5-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Logistic Model
+
+$$ P(Y = 1 | X = x_i) = \frac{1}{1 + e^{-(-10.65 + 0.0055 x_i)}} $$
+
+&lt;img src="logistic-regression_files/figure-html/unnamed-chunk-6-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Logistic Model Coefficients
+--
+
+.tiny[
+
+```r
+summary(m1)$coef
+```
+
+```
+##                  Estimate   Std. Error   z value      Pr(&gt;|z|)
+## (Intercept) -10.651330614 0.3611573721 -29.49221 3.623124e-191
+## balance       0.005498917 0.0002203702  24.95309 1.976602e-137
+```
+]
+
+Where did those SEs come from?
+
+---
+class: small
+# The Likelihood Function
+--
+
+
+48 male bank supervisors were asked to assume the role of the personnel director of a bank and were given a personnel file to judge whether the person should be promoted to a branch manager position. The files given to the participants were identical, except that half of them indicated the candidate was male and the other half indicated the candidate was female. These files were randomly assigned to the supervisiors. For each supervisor we recorded the gender associated with the assigned file and the promotion decision.
+
+--
+
+|           |     promoted|     not promoted     |
+|----------:|:-----------:|:--------------------:|
+|male       |           18|          6           |
+|female     |           14|          10          |
+
+--
+
+*Is this data consistent with the claim that females are unfairly discriminated against in promotion decisions? What statistical method would you use to make that determination?*
+
+---
+# A model for promotion
+--
+
+|       | promoted  | not promoted | p(promoted) |
+|------:|:---------:|:------------:|:-----------:|
+|male   |     18    |      6       | 18/24 = .75 |
+|female |     14    |      10      | 14/24 = .58 |
+
+--
+
+Suppose:
+
+1. Each decision was independent.
+2. All males were promoted with the same probability `\(p_{M}\)`.
+3. All females were promoted with the same probability `\(p_{F}\)`.
+
+--
+
+`$$Y \sim \textrm{binomial}(n = 24, p = p_{M}) \\
+X \sim \textrm{binomial}(n = 24, p = p_{F})$$`
+
+---
+# From Probability to Likelihood
+--
+
+$$
+P(\color{red}{y}, \color{red}{x} | n, p_M, p_F) = {n \choose \color{red}{y}} p_M^\color{red}{y} (1 - p_M)^{n-\color{red}{y}} {n \choose \color{red}{x}} p_F^\color{red}{x} (1 - p_F)^{n-\color{red}{x}}
+$$
+
+--
+
+vs.
+
+--
+
+$$
+L(\color{red}{p_M}, \color{red}{p_F} | n, y, x) = {n \choose y} \color{red}{p_M}^y (1 - \color{red}{p_M})^{n-y} {n \choose x} \color{red}{p_F}^x (1 - \color{red}{p_F})^{n-x}
+$$
+
+
+---
+# The Likelihood Function
+--
+
+&lt;img src="logistic-regression_files/figure-html/unnamed-chunk-8-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# The Likelihood Function
+
+&lt;img src="logistic-regression_files/figure-html/unnamed-chunk-9-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Likelihood Function, more data
+--
+
+&lt;img src="logistic-regression_files/figure-html/unnamed-chunk-10-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Likelihood Function, even more data
+--
+
+&lt;img src="logistic-regression_files/figure-html/unnamed-chunk-11-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Multiple Logisitic Regression
+--
+
+Add student as a predictor?
+
+--
+
+&lt;img src="logistic-regression_files/figure-html/unnamed-chunk-12-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+class: small
+# Multiple Logistic Model
+--
+
+
+```r
+m2 &lt;- glm(default ~ balance + student, 
+          data = Default, 
+          family = binomial)
+summary(m2)$coef
+```
+
+```
+##                  Estimate  Std. Error    z value      Pr(&gt;|z|)
+## (Intercept) -10.749495878 0.369191361 -29.116326 2.230782e-186
+## balance       0.005738104 0.000231847  24.749526 3.136911e-135
+## studentYes   -0.714877620 0.147519010  -4.846003  1.259734e-06
+```
+
+What's going on?
+
+
+---
+# Multiple Logistic Model, cont.
+--
+
+&lt;img src="logistic-regression_files/figure-html/unnamed-chunk-14-1.png" style="display: block; margin: auto;" /&gt;
+
+
+
+
+
+
+
+
+
+
+---
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "atelier-forest-light",
+"highlightLines": true,
+"highlightSpans": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
