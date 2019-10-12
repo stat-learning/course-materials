@@ -100,7 +100,7 @@ No class
 ### Wednesday
 - Discriminant Analysis
 - **For next time:**
-    - Lab 5 due Monday
+    - Lab 5 due Wednesday
     - Read p. 149 - 154
     
     
