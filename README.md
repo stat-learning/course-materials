@@ -110,6 +110,7 @@ No class
 - Classification Errors
 - Extending Discriminant Analysis
 - **For next time:**
+    - Lab 5 due
     - Study!
     
 ### Wednesday
