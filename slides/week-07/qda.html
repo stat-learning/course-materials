@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Extending Linear Discriminant Analysis</title>
+    <meta charset="utf-8" />
+    <link href="libs/remark-css-0.0.1/fc.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/fc-fonts.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="reed.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Extending Linear Discriminant Analysis
+
+---
+
+
+
+
+
+
+# Types of Errors
+
+Let's say you work for a bank and you're tasked with building a model that will
+predict whether someone will default given their credit history (i.e. balance).
+
+--
+
+What could go wrong?
+
+
+```r
+conf_log
+```
+
+```
+##            
+## my_log_pred   No  Yes
+##         No  9625  233
+##         Yes   42  100
+```
+
+--
+
+1. Deny credit to someone who would not have defaulted (false positive)
+2. Give credit to somone who will default (false negative)
+
+
+---
+
+What could we change to lower our false positive rate?
+
+
+```r
+my_log_pred &lt;- ifelse(m1$fit &lt; 0.6, "No", "Yes")
+conf_log_6 &lt;- table(my_log_pred, Default$default)
+conf_log_6
+```
+
+--
+
+
+```
+##            
+## my_log_pred   No  Yes
+##         No  9643  258
+##         Yes   24   75
+```
+
+--
+
+
+```r
+conf_log
+```
+
+```
+##            
+## my_log_pred   No  Yes
+##         No  9625  233
+##         Yes   42  100
+```
+
+
+
+---
+
+And if we raise the threshold a bit more?
+
+--
+
+
+```r
+my_log_pred &lt;- ifelse(m1$fit &lt; 0.7, "No", "Yes")
+conf_log_7 &lt;- table(my_log_pred, Default$default)
+conf_log_7
+```
+
+--
+
+
+```
+##            
+## my_log_pred   No  Yes
+##         No  9654  284
+##         Yes   13   49
+```
+
+--
+
+
+```r
+conf_log_6
+```
+
+```
+##            
+## my_log_pred   No  Yes
+##         No  9643  258
+##         Yes   24   75
+```
+
+
+
+---
+# False positive rate
+
+--
+
+Of all of the actual negatives, how many did we declare positive?
+
+--
+
+$$
+FPR = FP / (FP + TN)
+$$
+
+--
+
+.tiny[
+
+```r
+thresh &lt;- c(0.5, 0.6, 0.7)
+FPR &lt;- c(conf_log["Yes", "No"]/sum(conf_log[, "No"]),
+        conf_log_6["Yes", "No"]/sum(conf_log_6[, "No"]),
+        conf_log_7["Yes", "No"]/sum(conf_log_7[, "No"]))
+FPR
+```
+
+```
+## [1] 0.004344678 0.002482673 0.001344781
+```
+]
+
+---
+# True positive rate
+
+--
+
+Of all of the actual positives, how many did we declare positive?
+
+--
+
+$$
+TPR = TP / (TP + FN)
+$$
+
+--
+
+.tiny[
+
+```r
+thresh &lt;- c(0.5, 0.6, 0.7)
+TPR &lt;- c(conf_log["Yes", "Yes"]/sum(conf_log[, "Yes"]),
+        conf_log_6["Yes", "Yes"]/sum(conf_log_6[, "Yes"]),
+        conf_log_7["Yes", "Yes"]/sum(conf_log_7[, "Yes"]))
+TPR
+```
+
+```
+## [1] 0.3003003 0.2252252 0.1471471
+```
+]
+
+---
+# ROC curve
+
+&lt;img src="qda_files/figure-html/unnamed-chunk-10-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+---
+# LDA with p &gt; 1, K &gt; 2
+
+--
+
+&lt;img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Iris_versicolor_3.jpg/1920px-Iris_versicolor_3.jpg" alt="Iris" width="304" height="228"&gt;
+
+--
+
+.tiny[
+
+```r
+head(iris)
+```
+
+```
+##   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 1          5.1         3.5          1.4         0.2  setosa
+## 2          4.9         3.0          1.4         0.2  setosa
+## 3          4.7         3.2          1.3         0.2  setosa
+## 4          4.6         3.1          1.5         0.2  setosa
+## 5          5.0         3.6          1.4         0.2  setosa
+## 6          5.4         3.9          1.7         0.4  setosa
+```
+]
+
+---
+# Fisher's Irises
+
+&lt;img src="qda_files/figure-html/unnamed-chunk-12-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# LDA Classification
+
+---
+
+Can be done quickly using the `lda()` function in the `MASS` package.
+
+
+```r
+library(MASS)
+mlda &lt;- lda(Species ~ Sepal.Length + Sepal.Width,
+            data = iris)
+mlda_pred &lt;- predict(mlda)
+(conf_mlda &lt;- table(mlda_pred$class, 
+                    iris$Species))
+```
+
+--
+
+
+```
+##             
+##              setosa versicolor virginica
+##   setosa         49          0         0
+##   versicolor      1         36        15
+##   virginica       0         14        35
+```
+
+
+---
+# LDA Misclassification Rate
+
+--
+
+
+```r
+conf_mlda
+```
+
+```
+##             
+##              setosa versicolor virginica
+##   setosa         49          0         0
+##   versicolor      1         36        15
+##   virginica       0         14        35
+```
+
+--
+
+
+```r
+(sum(conf_mlda) - sum(diag(conf_mlda)))/
+  sum(conf_mlda)
+```
+
+--
+
+
+```
+## [1] 0.2
+```
+
+---
+# LDA decision boundaries
+
+--
+
+&lt;img src="qda_files/figure-html/unnamed-chunk-16-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# LDA summary
+
+--
+
+- Focuses on modeling the predictors: `\(f_k(X) = \textrm{Normal}(\mu_k, \sum)\)`
+- Uses Bayes Rule to find the probabilities that an observation in is each class
+given the probabilities of all the `\(\pi_k f_k(X)\)`.
+
+--
+
+**Note**
+
+- Allows each class to have its own `\(\mu_k\)`.
+- Constrains `\(\sum\)` to be shared between the classes (inducing linear decision
+boundaries).
+
+--
+
+*Question*
+
+On data set with 15 predictors and 1000 observations, would you worry more about
+the *bias* or the *variance* of this method?
+
+
+---
+# Quadratic Discriminant Analysis (QDA)
+
+--
+
+
+Focuses on modeling the predictors: `\(f_k(X) = \textrm{Normal}(\mu_k, \sum_k)\)`
+
+--
+
+*Allow each class to have it's own covariance matrix*
+
+
+---
+# QDA
+
+--
+
+
+```r
+mqda &lt;- qda(Species ~ Sepal.Length + Sepal.Width, 
+            data = iris)
+mqda_pred &lt;- predict(mqda)
+(conf_mqda &lt;- table(mqda_pred$class,
+                    iris$Species))
+```
+
+--
+
+
+```
+##             
+##              setosa versicolor virginica
+##   setosa         49          0         0
+##   versicolor      1         37        16
+##   virginica       0         13        34
+```
+
+---
+# QDA Misclassification Rate
+
+--
+
+
+```r
+conf_mqda
+```
+
+```
+##             
+##              setosa versicolor virginica
+##   setosa         49          0         0
+##   versicolor      1         37        16
+##   virginica       0         13        34
+```
+
+--
+
+
+```r
+(sum(conf_mqda) - sum(diag(conf_mqda)))/sum(conf_mqda)
+```
+
+--
+
+
+```
+## [1] 0.2
+```
+
+---
+# LDA decision boundaries
+
+--
+
+&lt;img src="qda_files/figure-html/unnamed-chunk-20-1.png" style="display: block; margin: auto;" /&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "atelier-forest-light",
+"highlightLines": true,
+"highlightSpans": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
