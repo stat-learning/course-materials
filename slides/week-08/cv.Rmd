@@ -1,0 +1,287 @@
+---
+title: "Resampling Methods"
+output:
+  xaringan::moon_reader:
+    css: [fc, fc-fonts, reed.css, default]
+    lib_dir: libs
+    nature:
+      highlightStyle: atelier-forest-light
+      highlightLines: true
+      highlightSpans: true
+      countIncrementalSlides: false
+---
+# Resampling
+
+Def: *Draw many samples from the training data and refit the model to each in order to learn about your model.*
+
+
+---
+# Cross-Validation
+--
+
+Methods to estimate the test error rate (MSE, misclassification error) by
+
+- holding out a subset of the training data from the fitting process
+- using that model to predict on the subset
+
+--
+
+## Three Flavors
+
+1. Validation Set
+--
+
+2. Leave-one-out
+--
+
+3. $k$-fold
+
+
+---
+# Validation Set
+
+--
+
+1. Randomly split data into a *training set* and a *validation set*.
+--
+
+2. Fit model to *training set*.
+--
+
+3. Use model to predict responses for *validation set*.
+--
+
+4. Compute validation set error rate as estimate of test error rate.
+--
+
+
+Let's look back on how we compared Logistic Regression to LDA . . .
+
+
+---
+# Split data into training/validation
+--
+
+```{r}
+library(ISLR)
+data(Default)
+set.seed(391)
+test_ind <- sample(1:10000, size = 5000)
+Default_test <- Default[test_ind, ]
+Default_train <- Default[-test_ind, ]
+```
+
+
+---
+# Fit models to train
+--
+
+```{r message = FALSE}
+# Logistic
+m1 <- glm(default ~ balance, 
+          data = Default_train, 
+          family = binomial)
+
+# LDA
+library(dplyr)
+est <- Default_train %>%
+  group_by(default) %>%
+  summarize(n = n(),
+            prop = n/nrow(Default_train),
+            mu = mean(balance),
+            ssx = var(balance) * (n - 1))
+```
+
+---
+# Fit models to train, cont.
+--
+
+Pull off estimates (and convert class).
+
+```{r}
+pi_n <- as.numeric(est[1, 3])
+pi_y <- as.numeric(est[2, 3])
+mu_n <- as.numeric(est[1, 4])
+mu_y <- as.numeric(est[2, 4])
+sig_sq <- (1/(nrow(Default_train) - 2)) *
+  sum(est$ssx)
+```
+
+
+---
+# Make predictions on validation
+--
+
+```{r}
+log_pred <- predict(m1, 
+                    newdata = Default_test, 
+                    type = "response")
+
+my_lda <- function(x, pi, mu, sig_sq) {
+  x * (mu/sig_sq) - (mu^2)/(2 * sig_sq) + log(pi)
+}
+
+d_n <- my_lda(Default_test$balance, 
+              pi_n, 
+              mu_n, 
+              sig_sq)
+d_y <- my_lda(Default_test$balance,
+              pi_y, 
+              mu_y,
+              sig_sq)
+
+my_log_pred <- ifelse(log_pred < 0.5, "No","Yes")
+my_lda_pred <- ifelse(d_n > d_y, "No", "Yes")
+```
+
+
+---
+# Misclassification Rates
+--
+
+```{r}
+conf_log <- table(my_log_pred, 
+                  Default_test$default)
+conf_lda <- table(my_lda_pred, 
+                  Default_test$default)
+(conf_log[2, 1] + conf_log[1, 2])/
+  nrow(Default_test)
+ (conf_lda[2, 1] + conf_lda[1, 2])/
+  nrow(Default_test)
+```
+
+**Logistic has the lower test error rate**.
+
+
+---
+# Let's do that again
+--
+
+How would have our conclusions changed if we had used a different partition into training and validation sets?
+
+--
+
+.tiny[
+```{r}
+test_ind <- sample(1:10000, size = 5000)
+Default_test <- Default[test_ind, ]
+Default_train <- Default[-test_ind, ]
+```
+]
+
+(Re-run all that code)
+
+```{r message = FALSE, echo = FALSE}
+valid_demo <- function() {
+m1 <- glm(default ~ balance, data = Default_train, family = binomial)
+
+est <- Default_train %>%
+  group_by(default) %>%
+  summarize(n = n(),
+            prop = n/nrow(Default_train),
+            mu = mean(balance),
+            ssx = var(balance) * (n - 1))
+
+pi_n <- as.numeric(est[1, 3])
+pi_y <- as.numeric(est[2, 3])
+mu_n <- as.numeric(est[1, 4])
+mu_y <- as.numeric(est[2, 4])
+sig_sq <- (1/(nrow(Default_train) - 2)) * sum(est$ssx)
+
+log_pred <- predict(m1, newdata = Default_test, type = "response")
+
+my_lda <- function(x, pi, mu, sig_sq) {
+  x * (mu/sig_sq) - (mu^2)/(2 * sig_sq) + log(pi)
+}
+d_n <- my_lda(Default_test$balance, pi_n, mu_n, sig_sq)
+d_y <- my_lda(Default_test$balance, pi_y, mu_y, sig_sq)
+
+my_log_pred <- ifelse(log_pred < 0.5, "No", "Yes")
+my_lda_pred <- ifelse(d_n > d_y, "No", "Yes")
+
+list(log = table(my_log_pred, Default_test$default),
+     lda = table(my_lda_pred, Default_test$default))
+}
+
+o <- valid_demo()
+
+conf_log <- o$log
+conf_lda <- o$lda
+```
+
+.tiny[
+```{r}
+(conf_log[2, 1] + conf_log[1, 2])/
+  nrow(Default_test)
+ (conf_lda[2, 1] + conf_lda[1, 2])/
+  nrow(Default_test)
+```
+]
+
+---
+# Let's do that many times
+--
+
+```{r echo = FALSE, message=FALSE, fig.align="center", warning = FALSE}
+it <- 500
+g <- data.frame(logo = rep(NA, 500), ldao = rep(NA, 500))
+for(i in 1:it) {
+  test_ind <- sample(1:10000, size = 5000)
+  Default_test <- Default[test_ind, ]
+  Default_train <- Default[-test_ind, ]
+  o <- valid_demo()
+  conf_log <- o$log
+  conf_lda <- o$lda
+  g[i, 1] <- (1/nrow(Default_test)) * (conf_log[2, 1] + conf_log[1, 2])
+  g[i, 2] <- (1/nrow(Default_test)) * (conf_lda[2, 1] + conf_lda[1, 2])
+}
+
+library(ggplot2)
+df <- data.frame(error = c(g[, 1], g[, 2]),
+                 model = as.factor(rep(c("log", "lda"), each = it)))
+ggplot(df, aes(x = error, fill = model)) + 
+  geom_density(alpha = .4) + 
+  theme_bw()
+```
+
+---
+
+```{r echo = FALSE, message=FALSE, fig.align="center", warning = FALSE}
+df2 <- data.frame(log_err = g[, 1],
+                  lda_err = g[, 2])
+ggplot(df2, aes(x = log_err, y = lda_err)) +
+  geom_jitter() +
+  theme_bw() +
+  labs(x = "Logistic Error",
+       y = "LDA Error")
+```
+
+---
+
+```{r echo = FALSE, message=FALSE, fig.align="center", warning = FALSE}
+df2 <- df2 %>%
+  mutate(lda_minus_log = lda_err - log_err)
+ggplot(df2, aes(x = lda_minus_log)) +
+  geom_density() +
+  theme_bw() +
+  labs(x = "LDA Error - Logistic Error")
+```
+
+
+---
+# Validation Set
+--
+
+### Downsides
+
+1. Estimate of test error rate can be highly variable based on the partition.
+2. You only use a fraction of the data to fit the model > overestimating test error rate.
+
+
+---
+# Leave-one-out
+
+
+
+
+
