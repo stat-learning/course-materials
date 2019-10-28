@@ -115,3 +115,18 @@ No class
     
 ### Wednesday
 - Midterm I
+
+
+## Week 8
+
+### Monday
+- Resampling
+    - Validation sets
+    - Leave-one-out CV
+    - k-fold CV
+- **For next time:**
+    - Read p. 175-197
+    
+### Wednesday
+- Bootstrap
+
