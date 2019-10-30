@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>The Bootstrap</title>
+    <meta charset="utf-8" />
+    <link href="libs/remark-css-0.0.1/fc.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/fc-fonts.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="reed.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# The Bootstrap
+
+---
+
+
+
+
+
+class: small
+
+# Paired Warmup (call this `activity-3.md`)
+
+Using the `Credit` data set in the `ISLR` package, you'll be estimating the 2, 5, and 10 fold CV MSE for a logistic regression model predicting `default` based on `balance`. Start by loading relevant packages and running following code:
+
+
+
+
+```r
+set.seed(42)
+k &lt;- 2
+partition_index &lt;- rep(1:k, each = nrow(Credit)/k) %&gt;%
+  sample()
+MSE_i &lt;- rep(NA, k)
+```
+
+Use the following scaffold to computer to compute three MSE estimates.
+
+
+```r
+# add partition index column to Credit data set
+for (i in 1:k) {
+  # create training data set
+  # create test data set
+  # fit model
+  # use model to predict into test data set
+  # store MSE_i
+}
+# compute final MSE estimate
+```
+
+
+---
+
+&lt;img src="figs/bootstrap-boot.png" width="350" style="display: block; margin: auto;" /&gt;
+
+---
+# The Bootstrap
+
+A widely applicable and powerful statistical tool used to quantify
+the uncertainty of a given estimate or model.
+
+--
+
+## Basic Idea
+With a dataset of `\(n\)` obs to which you've fit an estimate `\(\hat{\theta}\)`.
+
+--
+
+1. Draw a bootstrap sample, of size `\(n\)` **with replacement**.
+--
+
+2. Fit your estimate, `\(\hat{\theta}^*\)` to the bootstrap sample.
+--
+
+3. Repeat 1-2 many times and assess the variability in your estimate by looking at the *bootstrap distribution*.
+
+
+---
+# Ex: Simple Regression
+--
+
+Is there a relationship between fractionalization and growth?
+
+&lt;img src="bootstrap_files/figure-html/unnamed-chunk-5-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Bootstrapping `\(\hat{\beta}_1\)`
+--
+
+
+
+.tiny[
+
+```r
+betas &lt;- rep(NA, 5000)
+for(i in 1:5000) {
+  boot_ind &lt;- sample(1:nrow(war), 
+                     size = nrow(war), 
+                     replace = TRUE)
+  war_boot &lt;- war[boot_ind, ]
+  betas[i] &lt;- coef(lm(growth ~ fractionalization,
+                      data = war_boot))[2]
+}
+```
+]
+
+--
+
+&lt;img src="bootstrap_files/figure-html/unnamed-chunk-8-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Bootstrap distribution
+--
+
+
+```r
+mean(betas)
+```
+
+--
+
+
+```
+## [1] -0.0002717769
+```
+
+--
+
+
+```r
+sd(betas)
+```
+
+--
+
+
+```
+## [1] 6.088999e-05
+```
+
+--
+
+
+```r
+summary(m1)$coef
+```
+
+--
+
+
+```
+##                        Estimate   Std. Error   t value     Pr(&gt;|t|)
+## (Intercept)        2.0964034623 1.592597e-01 13.163424 2.925458e-36
+## fractionalization -0.0002704172 5.956005e-05 -4.540245 6.398626e-06
+```
+
+
+---
+# A common argument
+
+*Parametric methods have assumptions that often aren't reasonable, therefore the bootstrap is preferable because it's assumption free.*
+
+--
+
+The bootstrap requires a sample that captures the important structure in the data. Difficult with small samples of skewed data.
+
+But it sure is flexible . . .
+
+
+---
+# Bootstrapping `\(r\)`
+--
+
+Is there a relationship between fractionalization and growth in terms of the **correlation coefficient**?
+
+![](bootstrap_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+
+r = -0.151
+
+
+---
+# Bootstrapping `\(r\)`
+--
+
+.tiny[
+
+```r
+corrs &lt;- rep(NA, 5000)
+for(i in 1:5000) {
+  boot_ind &lt;- sample(1:nrow(war), 
+                     size = nrow(war),
+                     replace = TRUE)
+  war_boot &lt;- war[boot_ind, ]
+  corrs[i] &lt;- cor(war_boot$fractionalization,
+                  war_boot$growth)
+}
+```
+]
+
+&lt;img src="bootstrap_files/figure-html/unnamed-chunk-14-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+class: small
+
+# Bootstrapping v. CV
+--
+
+Both are computationally intensive methods that involve sampling from your data set to learn more about your estimate/model.
+
+--
+
+### Cross-validation
+Often used for *model assessment* and *model selection*.
+
+- Partition data into test and train
+- Fit model to train, predict on test
+- Iterate though all possible *folds* (not for VS)
+- Compute aggregate measure of predictive ability
+
+--
+
+### Bootstrapping
+Often used for quantifying uncertainty.
+
+- Draw a bootstrap sample of size `\(n\)` from your data *with replacement*.
+- Compute estimate of interest
+- Consider distribution of bootstrap estimates over many samples
+
+
+---
+# Activity 3, continued
+
+Take a look at the `law82` dataset inside the `bootstrap` package.
+
+Compute a statistic of interest and construct the bootstrap distribution to find its standard error.
+
+
+
+---
+# Activity 3, continued continued
+
+Take a look at the `law82` dataset inside the `bootstrap` package.
+
+1. Fit two models, linear and quadratic, to predict `GPA` based on `LSAT`.
+2. Compute the cross-validated MSE for both models using one of the three methods we've discussed.
+3. Bootstrap this statistic to estimate its standard error.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "atelier-forest-light",
+"highlightLines": true,
+"highlightSpans": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,3 +1,11 @@
 base
 ggplot2
 dplyr
+ISLR
+tidyverse
+tibble
+tidyr
+readr
+purrr
+stringr
+forcats
