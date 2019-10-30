@@ -10,8 +10,7 @@ a year is the fractional change in its value, \((v_{t+1} - v_t)/v_t\),
 and the average rate of return over \(k\) years is
 \([(v_{t+k} - v_t)/v_t]^{1/k}\).
 
-To read in the data from a csv the course website, you can
-use:
+To read in the data from a csv the course website, you can use:
 
 ``` r
 d <- read.csv("https://bit.ly/36kibHZ")
@@ -103,7 +102,7 @@ disconnected points.
 
 1.  **Cross-validation for model selection**: using CV MSE, which model
     would you select to make predictions of returns? Looking at the plot
-    in question 5, does this seem like a good model? What are it’s
+    in question 5, does this seem like a good model? What are its
     strengths and weaknesses for prediction?
 2.  **Bootstrapping for uncertainty estimation**: based on your
     bootstrapping procedure for the slope of the linear model using
@@ -112,7 +111,9 @@ disconnected points.
 
 -----
 
-Based on a homework of Cosma Shalizi at CMU. \* \* \*
+Based on a homework of Cosma Shalizi at CMU.
+
+-----
 
 #### Chapter 5 exercises
 
