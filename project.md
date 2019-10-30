@@ -10,11 +10,11 @@ This is your chance to put all of the modeling techniques that you've been learn
 
 ## Pre-proposal
 
-Please suggest three topics that are of interest to you to study in this project. For each, you should indicate your question, whether it is primarily predictive or descriptive, and a sense of what data you would use (along with a link if you have it).
+Please suggest three topics that are of interest to you to study in this project. For each, you should indicate your question, whether it suggests a classification or regression model, whether it is primarily predictive or descriptive, and a sense of what data you would use (along with a link if you have it).
 
 An example:
 
-1. Can we built a model to accurate predict whether a person is a republican or democrat based on their tweets? Predictive. We will train our model on data gather through the Twitter API from elected officials with known party affiliation.
+1. Can we built a model to accurate predict whether a person is a republican or democrat based on their tweets? Classification. Predictive. We will train our model on data gather through the Twitter API from elected officials with known party affiliation.
 
 I encourage you to think broadly about your topic area. This can build off of a neat idea you came across in another class, allow you to delve into the data modeling side of a particular hobby of yours, or a chance to build a tool for something that you're passionate about.
 
