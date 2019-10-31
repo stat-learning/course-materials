@@ -22,9 +22,9 @@ class: center, middle, inverse, title-slide
 
 class: small
 
-# Paired Warmup (call this `activity-3.md`)
+# Paired Warmup (call this `activity-3.Rmd`)
 
-Using the `Credit` data set in the `ISLR` package, you'll be estimating the 2, 5, and 10 fold CV MSE for a logistic regression model predicting `default` based on `balance`. Start by loading relevant packages and running following code:
+Using the `Default` data set in the `ISLR` package, you'll be estimating the 2, 5, and 10 fold CV MSE for a logistic regression model predicting `default` based on `balance`. Start by loading relevant packages and running following code:
 
 
 
@@ -32,7 +32,7 @@ Using the `Credit` data set in the `ISLR` package, you'll be estimating the 2, 5
 ```r
 set.seed(42)
 k &lt;- 2
-partition_index &lt;- rep(1:k, each = nrow(Credit)/k) %&gt;%
+partition_index &lt;- rep(1:k, each = nrow(Default)/k) %&gt;%
   sample()
 MSE_i &lt;- rep(NA, k)
 ```
@@ -41,7 +41,7 @@ Use the following scaffold to computer to compute three MSE estimates.
 
 
 ```r
-# add partition index column to Credit data set
+# add partition index column to Default data set
 for (i in 1:k) {
   # create training data set
   # create test data set

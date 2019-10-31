@@ -19,9 +19,9 @@ knitr::opts_chunk$set(message = FALSE, warning = FALSE)
 
 class: small
 
-# Paired Warmup (call this `activity-3.md`)
+# Paired Warmup (call this `activity-3.Rmd`)
 
-Using the `Credit` data set in the `ISLR` package, you'll be estimating the 2, 5, and 10 fold CV MSE for a logistic regression model predicting `default` based on `balance`. Start by loading relevant packages and running following code:
+Using the `Default` data set in the `ISLR` package, you'll be estimating the 2, 5, and 10 fold CV MSE for a logistic regression model predicting `default` based on `balance`. Start by loading relevant packages and running following code:
 
 ```{r include = FALSE}
 library(ISLR)
@@ -32,7 +32,7 @@ data(Credit)
 ```{r}
 set.seed(42)
 k <- 2
-partition_index <- rep(1:k, each = nrow(Credit)/k) %>%
+partition_index <- rep(1:k, each = nrow(Default)/k) %>%
   sample()
 MSE_i <- rep(NA, k)
 ```
@@ -40,7 +40,7 @@ MSE_i <- rep(NA, k)
 Use the following scaffold to computer to compute three MSE estimates.
 
 ```{r}
-# add partition index column to Credit data set
+# add partition index column to Default data set
 for (i in 1:k) {
   # create training data set
   # create test data set
