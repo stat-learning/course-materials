@@ -130,3 +130,24 @@ No class
 ### Wednesday
 - Bootstrap
 
+
+## Week 9
+
+### Monday
+- Regression Trees
+- Classification Trees
+- **For next time:**
+    - Read p. 303-321
+
+### Wednesday
+- Empowering the Tree
+- Variable Importance
+- Random Forests
+- **For next time:**
+    - Read p. 321-324
+    - Group Proposals due 11:59 pm Thursday.
+    
+## Week 10
+
+### Monday
+- Boosting
