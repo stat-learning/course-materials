@@ -24,13 +24,17 @@ I will be putting people in groups of three. If you have strong opinions of who 
 
 ### Groups
 
-1. Ben Thomas, Olek Wojcik, Alice Chang
+1. Naomi Boss, Kyla Hayworth, Nat Rubin
 2. Josh Dey, Gio Ramirez, Emmett Powers
 3. Claire Jellison, Jacob Goldsmith, Ryan Kobler 
 4. Sarah Maebius, Nolan Anderson, Tim Shinners
 5. Joe Yalowitz, Eva Licht, Alyssa Andrichik
 6. Yilin Li, Hien Nguyen, Lyn Peterson
-7. Naomi Boss, Kyla Hayworth, Nat Rubin
+7. Ben Thomas, Olek Wojcik, Alice Chang
 8. Isidore Weiss, Evan Pugh, Isaac Martin
-9. Grisha Post, David Herrero Quevedo, Paul Nguyen
+9. David Herrero Quevedo, Paul Nguyen
 
+
+## Group Proposal
+
+Meet with your group and decide on three topics to put forward. These should have component (question, model type, data source, etc) clearly articulated. Each group member should submit to GitHub the same .md file.
