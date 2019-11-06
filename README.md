@@ -135,17 +135,17 @@ No class
 
 ### Monday
 - Regression Trees
-- Classification Trees
 - **For next time:**
     - Read p. 303-321
 
 ### Wednesday
+- Classification Trees
 - Empowering the Tree
 - Variable Importance
 - Random Forests
 - **For next time:**
     - Read p. 321-324
-    - Group Proposals due 11:59 pm Thursday.
+    - Group Proposals due 11:59 pm Thursday
     
 ## Week 10
 
