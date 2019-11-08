@@ -53,7 +53,12 @@ Finally, construct the tree diagram for this best tree.
 #### 4\. Comparing predictive performance
 
 Use this tree to compute the MSE for the *test* data set. How does it
-compare to the test MSE for your regression model?
+compare to the test MSE for your regression model? You can load the test
+data with the following code:
+
+``` r
+test_data <- read.csv("https://bit.ly/2PYS8Ap")
+```
 
 #### 5\. Growing a random forest
 
