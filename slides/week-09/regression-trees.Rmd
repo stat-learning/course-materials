@@ -1,0 +1,257 @@
+---
+title: "Regression Trees"
+output:
+  xaringan::moon_reader:
+    css: [fc, fc-fonts, reed.css, default]
+    lib_dir: libs
+    nature:
+      highlightStyle: atelier-forest-light
+      highlightLines: true
+      highlightSpans: true
+      countIncrementalSlides: false
+---
+
+# Ex: MLB
+--
+
+```{r out.width=500, echo = FALSE, fig.align='center'}
+knitr::include_graphics("figs/baseball-guy.jpg")
+```
+
+--
+
+Can we predict the `Salary` of a MLB player based on the number of:
+
+- `Years` that he has been in the league
+- `Hits` that he made in the previous season
+
+
+
+---
+# Can we predict player salaries?
+--
+
+
+
+```{r}
+library(ISLR)
+dim(Hitters)
+names(Hitters)
+```
+
+
+---
+# Exploratory Data Analysis
+--
+
+```{r echo = FALSE, fig.align="center", fig.height = 5.5}
+library(ISLR)
+data(Hitters)
+library(scatterplot3d)
+s3d <-scatterplot3d(Hitters$Years, Hitters$Hits, Hitters$Salary, pch=16, highlight.3d=TRUE,
+  type="h", main="", xlab = "Years", ylab = "Hits", zlab = "Salary")
+fit <- lm(Salary ~ Years + Hits, data = Hitters)
+```
+
+Looks like a good setting for . . . **regression**. Maybe a linear model?
+
+---
+# Our old friend
+--
+
+```{r}
+m1 <- lm(Salary ~ Years + Hits, data = Hitters)
+```
+
+--
+
+```{r}
+coef(summary(m1))
+```
+
+
+---
+# We get: predictions
+--
+
+```{r echo = FALSE, fig.align="center", fig.height = 5.5}
+library(ISLR)
+data(Hitters)
+library(scatterplot3d)
+s3d <-scatterplot3d(Hitters$Years, Hitters$Hits, Hitters$Salary, pch=16, highlight.3d=TRUE,
+  type="h", main="", xlab = "Years", ylab = "Hits", zlab = "Salary")
+fit <- lm(Salary ~ Years + Hits, data = Hitters)
+s3d$plane3d(fit)
+m1 <- lm(Salary ~ Years + Hits, data = Hitters)
+```
+
+
+---
+# We get: predictions, cont.
+--
+
+$$
+MSE_{train} = \frac{1}{n}RSS
+$$
+
+```{r}
+mean(m1$res^2)
+```
+
+(Or better, use $CV_{(k)}$)
+
+
+---
+# We get: a generative/probability model
+--
+
+OLS regression:
+
+$$
+P(Y = y \, | \, X = x) = N(\beta_0 + \beta_1x, \sigma^2)
+$$
+
+--
+
+```{r echo = FALSE, fig.align="center", fig.height = 5, fig.width=9}
+par(mfrow = c(1, 2))
+plot(m1, 1)
+plot(m1, 2)
+```
+
+
+---
+# Quick fix?
+--
+
+```{r}
+Hitters$logSalary <- log(Hitters$Salary)
+m2 <- lm(logSalary ~ Years + Hits, data= Hitters)
+```
+
+--
+
+```{r echo = FALSE, fig.align="center", fig.height = 5, fig.width=9}
+par(mfrow = c(1, 2))
+plot(m2, 1)
+plot(m2, 2)
+```
+
+
+---
+# We get: description, kinda
+--
+
+```{r}
+summary(m2)$coef
+```
+
+--
+
+- An *increase* in `Years` is associated with an *increase* in Salary, on average.
+- An *increase* in `Hits` is associated with an *increase* in Salary, on average.
+
+--
+
+As the model becomes more complex, description becomes more difficult. Let's try
+something completely different.
+
+
+---
+# Regression Tree
+--
+
+A method to predict a continuous response, $Y$, using a series
+of $p$ predictors, $X$, by recursive binary splitting to minimize RSS.
+
+```{r out.width=500, echo = FALSE, fig.align='center'}
+#<!-- Credit: Barry Pate -->
+knitr::include_graphics("figs/oak.jpeg")
+```
+
+
+---
+# Regression Tree
+
+A method to predict a continuous response, $Y$, using a series
+of $p$ predictors, $X$, by recursive binary splitting to minimize RSS.
+
+```{r out.width=500, echo = FALSE, fig.align='center'}
+knitr::include_graphics("figs/oakflip.jpeg")
+```
+
+
+---
+# MLB Tree
+--
+
+```{r echo = FALSE, fig.align="center", fig.height = 6}
+library(tree)
+t1 <- tree(logSalary ~ Years + Hits, data = Hitters)
+t2 <- prune.tree(t1, best = 3)
+plot(t2)
+text(t2, pretty = 0)
+```
+
+
+---
+
+Boardwork
+
+---
+# Interpretation
+--
+
+- `Years` is the most important factor in contributing to salary, with less-experienced
+players earning less.
+--
+
+- Given a player is less-experienced, `Hits` has little impact on `Salary`.
+--
+
+- Given a player is more experienced, those with more `Hits` have a higher `Salary`.
+
+
+---
+
+**Practice #1**: Draw the predictor space corresponding to the following tree (it's `mtcars`...sorry).
+
+```{r echo = FALSE, fig.align="center", fig.height = 4.5}
+t3 <- tree(mpg ~ hp + wt, data = mtcars)
+plot(t3)
+text(t3, pretty = 0)
+```
+
+What would you expect the signs of the corresponding regression slopes to be?
+
+---
+
+
+```{r}
+m2 <- lm(mpg ~ hp + wt, data = mtcars)
+summary(m2)$coef
+```
+
+---
+
+Practice #2 + boardwork
+
+
+---
+# The Algorithm
+--
+
+1. Use RBS to grow a large tree on full data, stopping when every leaf has a 
+small number of obs.
+--
+
+2. Apply cost-complexity pruning to obtain a best subtree for many values of $\alpha$.
+--
+
+3. Use k-fold CV to choose $\alpha$. For each fold:
+    - Repeat (1) and (2) on training data.
+    - Compute the test MSE on all subtrees (one test MSE per $\alpha$).
+    Average the test MSEs for each $\alpha$ and choose $\alpha$ that minimizes.
+--
+
+4. Use that $\alpha$ to select your best subtree in (2)

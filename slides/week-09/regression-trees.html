@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Regression Trees</title>
+    <meta charset="utf-8" />
+    <link href="libs/remark-css-0.0.1/fc.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/fc-fonts.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="reed.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Regression Trees
+
+---
+
+
+# Ex: MLB
+--
+
+&lt;img src="figs/baseball-guy.jpg" width="500" style="display: block; margin: auto;" /&gt;
+
+--
+
+Can we predict the `Salary` of a MLB player based on the number of:
+
+- `Years` that he has been in the league
+- `Hits` that he made in the previous season
+
+
+
+---
+# Can we predict player salaries?
+--
+
+
+
+
+```r
+library(ISLR)
+dim(Hitters)
+```
+
+```
+## [1] 322  20
+```
+
+```r
+names(Hitters)
+```
+
+```
+##  [1] "AtBat"     "Hits"      "HmRun"     "Runs"      "RBI"      
+##  [6] "Walks"     "Years"     "CAtBat"    "CHits"     "CHmRun"   
+## [11] "CRuns"     "CRBI"      "CWalks"    "League"    "Division" 
+## [16] "PutOuts"   "Assists"   "Errors"    "Salary"    "NewLeague"
+```
+
+
+---
+# Exploratory Data Analysis
+--
+
+&lt;img src="regression-trees_files/figure-html/unnamed-chunk-3-1.png" style="display: block; margin: auto;" /&gt;
+
+Looks like a good setting for . . . **regression**. Maybe a linear model?
+
+---
+# Our old friend
+--
+
+
+```r
+m1 &lt;- lm(Salary ~ Years + Hits, data = Hitters)
+```
+
+--
+
+
+```r
+coef(summary(m1))
+```
+
+```
+##                Estimate Std. Error   t value     Pr(&gt;|t|)
+## (Intercept) -199.250976 67.4689750 -2.953224 3.432509e-03
+## Years         36.950116  4.7187203  7.830537 1.236069e-13
+## Hits           4.312438  0.5012647  8.603116 7.461315e-16
+```
+
+
+---
+# We get: predictions
+--
+
+&lt;img src="regression-trees_files/figure-html/unnamed-chunk-6-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# We get: predictions, cont.
+--
+
+$$
+MSE_{train} = \frac{1}{n}RSS
+$$
+
+
+```r
+mean(m1$res^2)
+```
+
+```
+## [1] 132477.9
+```
+
+(Or better, use `\(CV_{(k)}\)`)
+
+
+---
+# We get: a generative/probability model
+--
+
+OLS regression:
+
+$$
+P(Y = y \, | \, X = x) = N(\beta_0 + \beta_1x, \sigma^2)
+$$
+
+--
+
+&lt;img src="regression-trees_files/figure-html/unnamed-chunk-8-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Quick fix?
+--
+
+
+```r
+Hitters$logSalary &lt;- log(Hitters$Salary)
+m2 &lt;- lm(logSalary ~ Years + Hits, data= Hitters)
+```
+
+--
+
+&lt;img src="regression-trees_files/figure-html/unnamed-chunk-10-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# We get: description, kinda
+--
+
+
+```r
+summary(m2)$coef
+```
+
+```
+##                Estimate  Std. Error   t value      Pr(&gt;|t|)
+## (Intercept) 4.275128697 0.118395330 36.108930 2.717617e-103
+## Years       0.098162730 0.008280464 11.854737  3.324697e-26
+## Hits        0.008665097 0.000879625  9.850899  1.163842e-19
+```
+
+--
+
+- An *increase* in `Years` is associated with an *increase* in Salary, on average.
+- An *increase* in `Hits` is associated with an *increase* in Salary, on average.
+
+--
+
+As the model becomes more complex, description becomes more difficult. Let's try
+something completely different.
+
+
+---
+# Regression Tree
+--
+
+A method to predict a continuous response, `\(Y\)`, using a series
+of `\(p\)` predictors, `\(X\)`, by recursive binary splitting to minimize RSS.
+
+&lt;img src="figs/oak.jpeg" width="500" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Regression Tree
+
+A method to predict a continuous response, `\(Y\)`, using a series
+of `\(p\)` predictors, `\(X\)`, by recursive binary splitting to minimize RSS.
+
+&lt;img src="figs/oakflip.jpeg" width="500" style="display: block; margin: auto;" /&gt;
+
+
+---
+# MLB Tree
+--
+
+&lt;img src="regression-trees_files/figure-html/unnamed-chunk-14-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+Boardwork
+
+---
+# Interpretation
+--
+
+- `Years` is the most important factor in contributing to salary, with less-experienced
+players earning less.
+--
+
+- Given a player is less-experienced, `Hits` has little impact on `Salary`.
+--
+
+- Given a player is more experienced, those with more `Hits` have a higher `Salary`.
+
+
+---
+
+**Practice #1**: Draw the predictor space corresponding to the following tree (it's `mtcars`...sorry).
+
+&lt;img src="regression-trees_files/figure-html/unnamed-chunk-15-1.png" style="display: block; margin: auto;" /&gt;
+
+What would you expect the signs of the corresponding regression slopes to be?
+
+---
+
+
+
+```r
+m2 &lt;- lm(mpg ~ hp + wt, data = mtcars)
+summary(m2)$coef
+```
+
+```
+##                Estimate Std. Error   t value     Pr(&gt;|t|)
+## (Intercept) 37.22727012 1.59878754 23.284689 2.565459e-20
+## hp          -0.03177295 0.00902971 -3.518712 1.451229e-03
+## wt          -3.87783074 0.63273349 -6.128695 1.119647e-06
+```
+
+---
+
+Practice #2 + boardwork
+
+
+---
+# The Algorithm
+--
+
+1. Use RBS to grow a large tree on full data, stopping when every leaf has a 
+small number of obs.
+--
+
+2. Apply cost-complexity pruning to obtain a best subtree for many values of `\(\alpha\)`.
+--
+
+3. Use k-fold CV to choose `\(\alpha\)`. For each fold:
+    - Repeat (1) and (2) on training data.
+    - Compute the test MSE on all subtrees (one test MSE per `\(\alpha\)`).
+    Average the test MSEs for each `\(\alpha\)` and choose `\(\alpha\)` that minimizes.
+--
+
+4. Use that `\(\alpha\)` to select your best subtree in (2)
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "atelier-forest-light",
+"highlightLines": true,
+"highlightSpans": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

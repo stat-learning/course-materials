@@ -1,0 +1,120 @@
+---
+title: "Classification Trees"
+output:
+  xaringan::moon_reader:
+    css: [fc, fc-fonts, reed.css, default]
+    lib_dir: libs
+    nature:
+      highlightStyle: atelier-forest-light
+      highlightLines: true
+      highlightSpans: true
+      countIncrementalSlides: false
+---
+
+# Ex. MLB
+--
+
+```{r message = FALSE, warning = FALSE}
+library(ISLR)
+names(Hitters)
+```
+
+--
+
+Can we predict the league that a player is in based on his other variables?
+
+```{r out.width=280, echo = FALSE, fig.align='center'}
+knitr::include_graphics("figs/mlb-logos.jpg")
+```
+
+---
+# Fitting a tree
+--
+
+```{r}
+library(tree)
+t1 <- tree(League ~. - NewLeague, 
+           data = Hitters, split = "gini")
+class(t1)
+```
+
+**Default stopping rule**: stop splitting when terminal nodes get too small.
+
+---
+# Fitting a tree, cont.
+--
+
+```{r echo = FALSE, fig.align="center", fig.height = 5}
+plot(t1)
+text(t1, pretty = 0)
+set.seed(39)
+```
+
+Too much?
+
+---
+# Cost-complexity pruning  
+--
+
+Assess the performance of many trees with size indexed by $\alpha$ via 10-fold cross-validation on misclassification rate.
+
+--
+
+```{r eval = TRUE}
+set.seed(40)
+t1cv <- cv.tree(t1, FUN = prune.misclass)
+t1cv
+```
+
+```{r eval = FALSE}
+plot(t1cv$k, t1cv$dev, type = "b")
+plot(t1cv$size, t1cv$dev, type = "b")
+```
+
+---
+# Alpha vs Error
+--
+
+```{r echo = FALSE, fig.align = "center", fig.width = 8}
+plot(t1cv$k, t1cv$dev, type = "b", xlab = "alpha", ylab = "error")
+```
+
+
+---
+# Size vs Error
+--
+
+```{r echo = FALSE, fig.align = "center", fig.width = 8}
+plot(t1cv$size, t1cv$dev, type = "b", xlab = "n leaves", ylab = "error")
+```
+
+
+---
+# Prune the tree
+--
+
+```{r}
+t1cv$size[which.min(t1cv$dev)]
+t1prune <- prune.misclass(t1, best = 2)
+```
+
+--
+
+```{r echo = FALSE, fig.align = "center", fig.height = 3.4}
+plot(t1prune)
+text(t1prune, pretty = 0)
+```
+
+
+---
+# Activity 4: Off in the distance
+
+Return to your Lab 4, where you fit Logistic and an LDA model for the civil wars
+data set. In a new .Rmd file, add a new classification tree that has been pruned back.
+
+1. What is the training misclassification rate? (code for creating the confusion
+matrix can be found on p. 327 of your book)
+2. How does this rate compare to the other classification models that you used in Lab 4? Why do you think this is?
+
+
+
