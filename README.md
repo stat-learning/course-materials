@@ -140,9 +140,6 @@ No class
 
 ### Wednesday
 - Classification Trees
-- Empowering the Tree
-- Variable Importance
-- Random Forests
 - **For next time:**
     - Read p. 321-324
     - Group Proposals due 11:59 pm Thursday
@@ -150,4 +147,18 @@ No class
 ## Week 10
 
 ### Monday
-- Boosting
+- Collaborating with GitHub
+- Empowering the Tree
+    - Bagging
+    - Variable Importance
+    - Random Forests
+- **For next time:**
+    - Read p. 321-324
+    - Write out answers to reading questions for Breiman (see slides)
+    
+### Wednesday
+- Empowering the Tree
+    - Boosting (by hand)
+- Discussion of "Two Cultures"
+    
+    
