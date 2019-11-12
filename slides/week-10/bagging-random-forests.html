@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Empowering the Tree</title>
+    <meta charset="utf-8" />
+    <link href="libs/remark-css-0.0.1/fc.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/fc-fonts.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="reed.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Empowering the Tree
+## Bagging, Random Forests, and Boosting
+
+---
+
+
+# Bagging and Random Forests
+--
+
+## Goal
+
+Decrease the variance of our estimates while increasing the flexibility of the prediction.
+--
+
+## Strategies
+--
+
+**Bagging**: create many **b**oostrapped data sets, fit a full tree to each, then **agg**regate the predictions.
+
+**Random Forests**: perform bagging, but for each tree, at each split, only consider `\(m \le p\)` predictors.
+
+$$ m = \sqrt(p) \quad \quad m = p/3$$
+
+---
+# Random Forests: tree 1 
+--
+
+Let's take a look at what goes into building the first random tree. We're working with the same MLB data set.
+
+
+
+
+```r
+library(ISLR)
+data(Hitters)
+```
+
+The first step is to bootstrap a data set.
+
+
+```r
+boot_ind &lt;- sample(1:nrow(Hitters), 
+                   replace = TRUE)
+hit_boot &lt;- Hitters[boot_ind, ]
+```
+
+---
+# A random candidate set 
+--
+
+
+```r
+m &lt;- sqrt(ncol(hit_boot))
+names(hit_boot)
+```
+
+```
+##  [1] "AtBat"     "Hits"      "HmRun"     "Runs"      "RBI"      
+##  [6] "Walks"     "Years"     "CAtBat"    "CHits"     "CHmRun"   
+## [11] "CRuns"     "CRBI"      "CWalks"    "League"    "Division" 
+## [16] "PutOuts"   "Assists"   "Errors"    "Salary"    "NewLeague"
+```
+
+```r
+rforest_ind &lt;- sample(1:ncol(hit_boot),
+                      size = m, replace = FALSE)
+rforest_ind
+```
+
+```
+## [1]  5  8 19  7
+```
+
+```r
+hit_rforest &lt;- hit_boot[ , c(rforest_ind, 14)]
+```
+
+
+---
+# The first random split 
+--
+
+
+```r
+library(tree)
+t1 &lt;- tree(League ~ ., data = hit_rforest)
+plot(t1)
+text(t1, pretty = 0)
+```
+
+&lt;img src="bagging-random-forests_files/figure-html/unnamed-chunk-5-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Subsequent splits 
+--
+
+- Each split takes a new random sample (without replacement) of `\(m\)` predictors as candiates.
+- This can be done more succinctly with `randomForest()` in `library(randomForest)`.
+
+
+---
+# Random Forests: tree 2 
+--
+
+Create a new bootstrap a data set.
+
+
+```r
+boot_ind &lt;- sample(1:nrow(Hitters), 
+                   replace = TRUE)
+hit_boot &lt;- Hitters[boot_ind, ]
+```
+
+
+---
+## A random candidate set 
+--
+
+
+```r
+m &lt;- sqrt(ncol(hit_boot))
+names(hit_boot)
+```
+
+```
+##  [1] "AtBat"     "Hits"      "HmRun"     "Runs"      "RBI"      
+##  [6] "Walks"     "Years"     "CAtBat"    "CHits"     "CHmRun"   
+## [11] "CRuns"     "CRBI"      "CWalks"    "League"    "Division" 
+## [16] "PutOuts"   "Assists"   "Errors"    "Salary"    "NewLeague"
+```
+
+```r
+rforest_ind &lt;- sample(1:ncol(hit_boot),
+                      size = m, replace = FALSE)
+rforest_ind
+```
+
+```
+## [1] 19 11 20  4
+```
+
+```r
+hit_rforest &lt;- hit_boot[ , c(rforest_ind, 14)]
+```
+
+
+---
+# The first random split 
+--
+
+
+```r
+library(tree)
+t1 &lt;- tree(League ~ ., data = hit_rforest)
+plot(t1)
+text(t1, pretty = 0)
+```
+
+&lt;img src="bagging-random-forests_files/figure-html/unnamed-chunk-8-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+## Making a final prediction 
+--
+
+- Predictor values are plugged into each random tree to make a prediction.
+- Final prediction is made by majority vote (classification) or averaging (regression).
+
+
+---
+boardwork
+
+
+---
+# Consider the ant and the bee
+--
+
+&lt;img src="figs/ant-and-bee.png" width="600" height="400" style="display: block; margin: auto;" /&gt;
+
+On his own, the bee is far too weak to move the bee ...
+
+
+---
+# Consider the ant and the bee
+--
+
+&lt;img src="figs/ants-carrying-bee.jpg" width="550" height="370" style="display: block; margin: auto;" /&gt;
+
+... but combine many complementary weak components, and you get something that's very powerful.
+
+
+---
+# Boosting 
+--
+
+A very general statistical technique that builds up a sequence of weak complementary learners into a boosted learner that is strong.
+
+Note: there is no bootstrapping needed.
+
+
+---
+# Growing a weak tree 
+
+Back to the regression setting...
+
+
+```r
+t2 &lt;- tree(Salary ~ ., data = Hitters)
+```
+
+&lt;img src="bagging-random-forests_files/figure-html/unnamed-chunk-12-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# Growing a weak tree 
+--
+
+Let's say we want each weak tree to contain only one split `\(d = 1\)`.
+
+
+```r
+weak1 &lt;- prune.tree(t2, best = 2)
+```
+
+&lt;img src="bagging-random-forests_files/figure-html/unnamed-chunk-14-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Finding a complement
+--
+
+How can we figure out where this weak learner failed to explain the data well?
+--
+
+
+**Residuals**
+
+
+
+---
+# Residuals
+--
+
+`\(r_i = y_i - \hat{y}_i\)`
+
+
+```r
+Hitters$Salary[5:8]
+```
+
+```
+## [1]  91.5 750.0  70.0 100.0
+```
+
+```r
+predict(weak1, newdata = Hitters)[5:8]
+```
+
+```
+## -Andres Galarraga  -Alfredo Griffin        -Al Newman  -Argenis Salazar 
+##          227.8547          782.8048          227.8547          227.8547
+```
+
+```r
+Hitters$Salary[5:8] - 
+  predict(weak1, newdata = Hitters)[5:8]
+```
+
+```
+## -Andres Galarraga  -Alfredo Griffin        -Al Newman  -Argenis Salazar 
+##        -136.35470         -32.80484        -157.85470        -127.85470
+```
+
+
+---
+# Growing a new weak tree 
+--
+
+
+```r
+r1 &lt;- Hitters
+r1$Salary &lt;- Hitters$Salary - 
+  predict(weak1, newdata = Hitters)
+t3 &lt;- tree(Salary ~ ., data = r1)
+weak2 &lt;- prune.tree(t3, best = 2)
+```
+
+&lt;img src="bagging-random-forests_files/figure-html/unnamed-chunk-17-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# And so on...
+--
+
+- Continue process of fitting simple trees (weak learners) to the residuals from the previous model.
+- Stop after you've made a total of `\(B\)` trees.
+- Final boosted prediction:
+
+$$ \hat{f}(x) = \sum_{b = 1}^B \hat{f}^b(x)$$
+
+well, that's close, but we can be a bit more flexible.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "atelier-forest-light",
+"highlightLines": true,
+"highlightSpans": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

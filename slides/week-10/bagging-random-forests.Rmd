@@ -1,0 +1,259 @@
+---
+title: "Empowering the Tree"
+subtitle: "Bagging, Random Forests, and Boosting"
+output:
+  xaringan::moon_reader:
+    css: [fc, fc-fonts, reed.css, default]
+    lib_dir: libs
+    nature:
+      highlightStyle: atelier-forest-light
+      highlightLines: true
+      highlightSpans: true
+      countIncrementalSlides: false
+---
+
+# Bagging and Random Forests
+--
+
+## Goal
+
+Decrease the variance of our estimates while increasing the flexibility of the prediction.
+--
+
+## Strategies
+--
+
+**Bagging**: create many **b**oostrapped data sets, fit a full tree to each, then **agg**regate the predictions.
+
+**Random Forests**: perform bagging, but for each tree, at each split, only consider $m \le p$ predictors.
+
+$$ m = \sqrt(p) \quad \quad m = p/3$$
+
+---
+# Random Forests: tree 1 
+--
+
+Let's take a look at what goes into building the first random tree. We're working with the same MLB data set.
+
+```{r echo = FALSE}
+set.seed(94)
+```
+
+```{r message = FALSE}
+library(ISLR)
+data(Hitters)
+```
+
+The first step is to bootstrap a data set.
+
+```{r}
+boot_ind <- sample(1:nrow(Hitters), 
+                   replace = TRUE)
+hit_boot <- Hitters[boot_ind, ]
+```
+
+---
+# A random candidate set 
+--
+
+```{r}
+m <- sqrt(ncol(hit_boot))
+names(hit_boot)
+rforest_ind <- sample(1:ncol(hit_boot),
+                      size = m, replace = FALSE)
+rforest_ind
+hit_rforest <- hit_boot[ , c(rforest_ind, 14)]
+```
+
+
+---
+# The first random split 
+--
+
+```{r message = FALSE, fig.height=5, fig.align="center"}
+library(tree)
+t1 <- tree(League ~ ., data = hit_rforest)
+plot(t1)
+text(t1, pretty = 0)
+```
+
+
+---
+# Subsequent splits 
+--
+
+- Each split takes a new random sample (without replacement) of $m$ predictors as candiates.
+- This can be done more succinctly with `randomForest()` in `library(randomForest)`.
+
+
+---
+# Random Forests: tree 2 
+--
+
+Create a new bootstrap a data set.
+
+```{r}
+boot_ind <- sample(1:nrow(Hitters), 
+                   replace = TRUE)
+hit_boot <- Hitters[boot_ind, ]
+```
+
+
+---
+## A random candidate set 
+--
+
+```{r}
+m <- sqrt(ncol(hit_boot))
+names(hit_boot)
+rforest_ind <- sample(1:ncol(hit_boot),
+                      size = m, replace = FALSE)
+rforest_ind
+hit_rforest <- hit_boot[ , c(rforest_ind, 14)]
+```
+
+
+---
+# The first random split 
+--
+
+```{r message = FALSE, fig.height=5, fig.align="center"}
+library(tree)
+t1 <- tree(League ~ ., data = hit_rforest)
+plot(t1)
+text(t1, pretty = 0)
+```
+
+
+---
+## Making a final prediction 
+--
+
+- Predictor values are plugged into each random tree to make a prediction.
+- Final prediction is made by majority vote (classification) or averaging (regression).
+
+
+---
+boardwork
+
+
+---
+# Consider the ant and the bee
+--
+
+```{r out.width=600, out.height=400, echo = FALSE, fig.align='center'}
+knitr::include_graphics("figs/ant-and-bee.png")
+```
+
+On his own, the bee is far too weak to move the bee ...
+
+
+---
+# Consider the ant and the bee
+--
+
+```{r out.width=550, out.height=370, echo = FALSE, fig.align='center'}
+knitr::include_graphics("figs/ants-carrying-bee.jpg")
+```
+
+... but combine many complementary weak components, and you get something that's very powerful.
+
+
+---
+# Boosting 
+--
+
+A very general statistical technique that builds up a sequence of weak complementary learners into a boosted learner that is strong.
+
+Note: there is no bootstrapping needed.
+
+
+---
+# Growing a weak tree 
+
+Back to the regression setting...
+
+```{r}
+t2 <- tree(Salary ~ ., data = Hitters)
+```
+
+```{r echo = FALSE, fig.align="center", fig.height = 5.5}
+plot(t2)
+text(t2, pretty = 0)
+```
+
+---
+# Growing a weak tree 
+--
+
+Let's say we want each weak tree to contain only one split $d = 1$.
+
+```{r}
+weak1 <- prune.tree(t2, best = 2)
+```
+
+```{r echo = FALSE, fig.height=3, fig.align="center"}
+plot(weak1)
+text(weak1, pretty = 0)
+```
+
+
+---
+# Finding a complement
+--
+
+How can we figure out where this weak learner failed to explain the data well?
+--
+
+
+**Residuals**
+
+
+
+---
+# Residuals
+--
+
+$r_i = y_i - \hat{y}_i$
+
+```{r}
+Hitters$Salary[5:8]
+predict(weak1, newdata = Hitters)[5:8]
+Hitters$Salary[5:8] - 
+  predict(weak1, newdata = Hitters)[5:8]
+```
+
+
+---
+# Growing a new weak tree 
+--
+
+```{r}
+r1 <- Hitters
+r1$Salary <- Hitters$Salary - 
+  predict(weak1, newdata = Hitters)
+t3 <- tree(Salary ~ ., data = r1)
+weak2 <- prune.tree(t3, best = 2)
+```
+
+```{r echo = FALSE, fig.height=3, fig.align="center"}
+plot(weak2)
+text(weak2, pretty = 0)
+```
+
+---
+# And so on...
+--
+
+- Continue process of fitting simple trees (weak learners) to the residuals from the previous model.
+- Stop after you've made a total of $B$ trees.
+- Final boosted prediction:
+
+$$ \hat{f}(x) = \sum_{b = 1}^B \hat{f}^b(x)$$
+
+well, that's close, but we can be a bit more flexible.
+
+
+
+
+
