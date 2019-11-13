@@ -1,0 +1,289 @@
+\documentclass{article}\usepackage[]{graphicx}\usepackage[]{color}
+% maxwidth is the original width if it is less than linewidth
+% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+\usepackage{graphicx, color, hyperref, fancyhdr}
+
+%\input{../brayTeachingStyle}
+
+\usepackage[top=.8in, bottom=.5in, left=1.5in, right=1.5in]{geometry}
+\thispagestyle{empty}
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+
+\begin{center}
+\textsc{Math 243: Statistical Learning} \\
+\noindent\rule{12cm}{0.4pt}
+\end{center}
+
+\subsection*{Boosted Trees}
+
+\emph{One Weak Learner} ($b = 1$): We'd like to build a boosted tree that will predict a value for $Y$ given $X_1$ and $X_2$ using the 8 training observations found in the table below.
+
+\begin{enumerate}
+\item The structure of the first weak learner is shown in the tree diagram below. Please fill in the prediction at each of the leaves as well as in the table in the column labeled $\hat{f}^1(x)$.
+
+\vspace{10mm}
+
+\begin{minipage}[t]{.4\textwidth}
+{\includegraphics[width=\textwidth]{treeA.png}}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{.4\textwidth}
+% latex table generated in R 3.6.1 by xtable 1.8-4 package
+% Wed Nov 13 14:28:49 2019
+\begin{tabular}{rrrrll}
+  \hline
+ & $X_1$ & $X_2$ & $Y$ & $\hat{f}^1(x)$ & r \\ 
+  \hline
+1 & 270.00 & 1.25 & 15.00 &  &  \\ 
+  2 & 236.03 & 1.75 & 21.00 &  &  \\ 
+  3 & 60.93 & 2.94 & 27.00 &  &  \\ 
+  4 & 255.95 & 4.38 & 15.00 &  &  \\ 
+  5 & 46.59 & 1.87 & 30.00 &  &  \\ 
+  6 & 108.66 & 1.48 & 26.00 &  &  \\ 
+  7 & 407.33 & 6.58 & 15.00 &  &  \\ 
+  8 & 478.19 & 4.32 & 19.00 &  &  \\ 
+   \hline
+\end{tabular}
+
+\end{minipage}
+
+\vspace{8mm}
+\item Carefully draw the surface corresponding to $\hat{f}^1(x)$ on the 3D scatterplot below.
+
+\vspace{-8mm}
+
+\begin{center}
+{\includegraphics[scale=0.9]{scatterA.pdf}}
+\end{center}
+
+\vspace{-8mm}
+
+\item Now that you have the prediction from the weak learner, please compute the residuals for each observation to find out where this learner did well and where it did poorly. Fill them in the column labeled \emph{r}.
+
+\end{enumerate}
+
+\newpage
+
+\begin{center}
+\textsc{Math 243: Statistical Learning} \\
+\noindent\rule{12cm}{0.4pt}
+\end{center}
+
+\subsection*{Boosted Trees}
+
+\emph{Second Weak Learner} ($b = 2$): Now we strengthen our tree by incorporating a second weak learner that addresses the most glaring deficiencies of the first learner.
+
+\begin{enumerate}
+\item The structure of the second weak learner is shown in the tree diagram below. Please fill in the prediction at each of the leaves as well as in the table in the column labeled $\hat{f}^2(x)$.
+
+\vspace{10mm}
+
+\begin{minipage}[t]{.4\textwidth}
+{\includegraphics[width=\textwidth]{treeB.png}}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{.4\textwidth}
+% latex table generated in R 3.6.1 by xtable 1.8-4 package
+% Wed Nov 13 14:28:49 2019
+\begin{tabular}{rrrrll}
+  \hline
+ & $X_1$ & $X_2$ & $r_{old}$ & $\hat{f}^2(x)$ & $r_{new}$ \\ 
+  \hline
+1 & 270.00 & 1.25 & -1.00 &  &  \\ 
+  2 & 236.03 & 1.75 & -5.00 &  &  \\ 
+  3 & 60.93 & 2.94 & 1.00 &  &  \\ 
+  4 & 255.95 & 4.38 & -1.00 &  &  \\ 
+  5 & 46.59 & 1.87 & 4.00 &  &  \\ 
+  6 & 108.66 & 1.48 & 0.00 &  &  \\ 
+  7 & 407.33 & 6.58 & -1.00 &  &  \\ 
+  8 & 478.19 & 4.32 & 3.00 &  &  \\ 
+   \hline
+\end{tabular}
+
+\end{minipage}
+
+\vspace{8mm}
+\item Carefully draw the surface corresponding to $\hat{f}^2(x)$ on the 3D scatterplot below.
+
+\vspace{-8mm}
+
+\begin{center}
+{\includegraphics[scale=0.9]{scatterB.pdf}}
+\end{center}
+
+\vspace{-8mm}
+
+\item Now that you have the prediction from the second weak learner, please compute the new residuals for each observation to find out where this learner did well and where it did poorly. Fill them in the column labeled \emph{$r_{new}$}.
+
+\end{enumerate}
+
+\newpage
+
+\begin{center}
+\textsc{Math 243: Statistical Learning} \\
+\noindent\rule{12cm}{0.4pt}
+\end{center}
+
+\subsection*{Boosted Trees}
+
+\emph{Third Weak Learner} ($b = 3$): We continue to strengthen our tree by incorporating a third weak learner that addresses the most glaring deficiencies of the first two learners.
+
+\begin{enumerate}
+\item The structure of the third weak learner is shown in the tree diagram below. Please fill in the prediction at each of the leaves as well as in the table in the column labeled $\hat{f}^3(x)$.
+
+\vspace{10mm}
+
+\begin{minipage}[t]{.4\textwidth}
+{\includegraphics[width=\textwidth]{treeC.png}}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{.4\textwidth}
+% latex table generated in R 3.6.1 by xtable 1.8-4 package
+% Wed Nov 13 14:28:49 2019
+\begin{tabular}{rrrrl}
+  \hline
+ & $X_1$ & $X_2$ & $r_{old}$ & $\hat{f}^3(x)$ \\ 
+  \hline
+1 & 270.00 & 1.25 & -0.80 &  \\ 
+  2 & 236.03 & 1.75 & -4.80 &  \\ 
+  3 & 60.93 & 2.94 & 1.20 &  \\ 
+  4 & 255.95 & 4.38 & -1.33 &  \\ 
+  5 & 46.59 & 1.87 & 4.20 &  \\ 
+  6 & 108.66 & 1.48 & 0.20 &  \\ 
+  7 & 407.33 & 6.58 & -1.33 &  \\ 
+  8 & 478.19 & 4.32 & 2.67 &  \\ 
+   \hline
+\end{tabular}
+
+\end{minipage}
+
+\vspace{8mm}
+\item Carefully draw the surface corresponding to $\hat{f}^3(x)$ on the 3D scatterplot below.
+
+\vspace{-8mm}
+
+\begin{center}
+{\includegraphics[scale=0.9]{scatterC.pdf}}
+\end{center}
+
+\end{enumerate}
+
+\newpage
+
+\begin{center}
+\textsc{Math 243: Statistical Learning} \\
+\noindent\rule{12cm}{0.4pt}
+\end{center}
+
+\subsection*{Boosted Trees}
+
+\emph{Full Boosted Model}: Let's say we're sufficently satisfied with having three weak learners. The final step is to combine them into the final model.
+
+\begin{enumerate}
+\item Fill in the final boosted estimates, $\hat{f}^{boost}(x)$, in the table below.
+
+\vspace{10mm}
+
+% latex table generated in R 3.6.1 by xtable 1.8-4 package
+% Wed Nov 13 14:28:49 2019
+\begin{tabular}{rrrrrrrl}
+  \hline
+ & $X_1$ & $X_2$ & $Y$ & $\hat{f}^1(x)$ & $\hat{f}^2(x)$ & $\hat{f}^3(x)$ & $\hat{f}^{boost}(x)$ \\ 
+  \hline
+1 & 270.00 & 1.25 & 15.00 & 16.00 & -0.20 & -1.12 &  \\ 
+  2 & 236.03 & 1.75 & 21.00 & 26.00 & -0.20 & -1.12 &  \\ 
+  3 & 60.93 & 2.94 & 27.00 & 26.00 & -0.20 & 1.87 &  \\ 
+  4 & 255.95 & 4.38 & 15.00 & 16.00 & 0.33 & -1.12 &  \\ 
+  5 & 46.59 & 1.87 & 30.00 & 26.00 & -0.20 & 1.87 &  \\ 
+  6 & 108.66 & 1.48 & 26.00 & 26.00 & -0.20 & 1.87 &  \\ 
+  7 & 407.33 & 6.58 & 15.00 & 16.00 & 0.33 & -1.12 &  \\ 
+  8 & 478.19 & 4.32 & 19.00 & 16.00 & 0.33 & -1.12 &  \\ 
+   \hline
+\end{tabular}
+
+
+\vspace{8mm}
+\item Carefully draw the surface corresponding to $\hat{f}^{boost}(x)$ on the 3D scatterplot below (yes, this is difficult!). Note that we're back to the same coordinates as in the scatterplot for the first weak learner.
+
+\vspace{-8mm}
+
+\begin{center}
+{\includegraphics[scale=0.9]{scatterD.pdf}}
+\end{center}
+
+
+\newpage
+
+\begin{center}
+\textsc{Math 243: Statistical Learning} \\
+\noindent\rule{12cm}{0.4pt}
+\end{center}
+
+\item What value did we use for $d$, the depth of each weak learner?
+\vspace{8mm}
+
+\item What value did we use for $B$, the number of weak learners?
+\vspace{8mm}
+
+\item What value did we use for $\lambda$, the shrinkage parameter?
+\vspace{8mm}
+
+\item Please describe the trend in the amount of explanatory power of each successive learner, $\hat{f}^1(x)$ to $\hat{f}^3(x)$.
+\vspace{25mm}
+
+\item What would be the consequences if we set $\lambda = 0.01$?
+\vspace{8mm}
+
+\end{enumerate}
+
+
+\end{document}
