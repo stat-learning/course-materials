@@ -1,0 +1,258 @@
+\documentclass{article}
+\usepackage{graphicx, color, hyperref, fancyhdr}
+
+%\input{../brayTeachingStyle}
+
+\usepackage[top=.8in, bottom=.5in, left=1.5in, right=1.5in]{geometry}
+\thispagestyle{empty}
+\begin{document}
+
+\begin{center}
+\textsc{Math 243: Statistical Learning} \\
+\noindent\rule{12cm}{0.4pt}
+\end{center}
+
+\subsection*{Boosted Trees}
+
+\emph{One Weak Learner} ($b = 1$): We'd like to build a boosted tree that will predict a value for $Y$ given $X_1$ and $X_2$ using the 8 training observations found in the table below.
+
+\begin{enumerate}
+\item The structure of the first weak learner is shown in the tree diagram below. Please fill in the prediction at each of the leaves as well as in the table in the column labeled $\hat{f}^1(x)$.
+
+\vspace{10mm}
+
+\begin{minipage}[t]{.4\textwidth}
+{\includegraphics[width=\textwidth]{treeA.png}}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{.4\textwidth}
+<<echo = FALSE, results = 'asis'>>=
+set.seed(495)
+mt <- mtcars[sample(1:nrow(mtcars), 8), ]
+mt$disp <- mt$disp + rnorm(nrow(mt), sd = 30)
+mt$wt <- mt$wt + rnorm(nrow(mt), sd = 1.1)
+mt[1, "disp"] <- 270
+mt[1, "mpg"] <- 15
+mt <- mt[, c("disp", "wt", "mpg")]
+mt$mpg <- round(mt$mpg, digits = 0)
+mt$f1 <- rep(NA, 8)
+mt$r1 <- rep(NA, 8)
+names(mt) <- c("$X_1$", "$X_2$", "$Y$", "$\\hat{f}^1(x)$", "r")
+rownames(mt) <- NULL
+library(xtable)
+print(xtable(mt), sanitize.colnames.function = identity, floating = FALSE)
+@
+\end{minipage}
+
+\vspace{8mm}
+\item Carefully draw the surface corresponding to $\hat{f}^1(x)$ on the 3D scatterplot below.
+
+\vspace{-8mm}
+
+\begin{center}
+{\includegraphics[scale=0.9]{scatterA.pdf}}
+\end{center}
+
+\vspace{-8mm}
+
+\item Now that you have the prediction from the weak learner, please compute the residuals for each observation to find out where this learner did well and where it did poorly. Fill them in the column labeled \emph{r}.
+
+\end{enumerate}
+
+\newpage
+
+\begin{center}
+\textsc{Math 243: Statistical Learning} \\
+\noindent\rule{12cm}{0.4pt}
+\end{center}
+
+\subsection*{Boosted Trees}
+
+\emph{Second Weak Learner} ($b = 2$): Now we strengthen our tree by incorporating a second weak learner that addresses the most glaring deficiencies of the first learner.
+
+\begin{enumerate}
+\item The structure of the second weak learner is shown in the tree diagram below. Please fill in the prediction at each of the leaves as well as in the table in the column labeled $\hat{f}^2(x)$.
+
+\vspace{10mm}
+
+\begin{minipage}[t]{.4\textwidth}
+{\includegraphics[width=\textwidth]{treeB.png}}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{.4\textwidth}
+<<echo = FALSE, results = 'asis'>>=
+set.seed(495)
+mt <- mtcars[sample(1:nrow(mtcars), 8), ]
+mt$disp <- mt$disp + rnorm(nrow(mt), sd = 30)
+mt$wt <- mt$wt + rnorm(nrow(mt), sd = 1.1)
+mt[1, "disp"] <- 270
+mt[1, "mpg"] <- 15
+mt <- mt[, c("disp", "wt", "mpg")]
+mt$mpg <- round(mt$mpg, digits = 0)
+mt$f1 <- mean(mt$mpg[mt$disp <  254.1])
+mt$f1[mt$disp > 254.1] <- mean(mt$mpg[mt$disp > 254.1])
+mt$r <- mt$mpg - mt$f1
+mt <- mt[, c("disp", "wt", "r")]
+mt$f2 <- rep(NA, 8)
+mt$r2 <- rep(NA, 8)
+names(mt) <- c("$X_1$", "$X_2$", "$r_{old}$", "$\\hat{f}^2(x)$", "$r_{new}$")
+rownames(mt) <- NULL
+library(xtable)
+print(xtable(mt), sanitize.colnames.function = identity, floating = FALSE)
+@
+\end{minipage}
+
+\vspace{8mm}
+\item Carefully draw the surface corresponding to $\hat{f}^2(x)$ on the 3D scatterplot below.
+
+\vspace{-8mm}
+
+\begin{center}
+{\includegraphics[scale=0.9]{scatterB.pdf}}
+\end{center}
+
+\vspace{-8mm}
+
+\item Now that you have the prediction from the second weak learner, please compute the new residuals for each observation to find out where this learner did well and where it did poorly. Fill them in the column labeled \emph{$r_{new}$}.
+
+\end{enumerate}
+
+\newpage
+
+\begin{center}
+\textsc{Math 243: Statistical Learning} \\
+\noindent\rule{12cm}{0.4pt}
+\end{center}
+
+\subsection*{Boosted Trees}
+
+\emph{Third Weak Learner} ($b = 3$): We continue to strengthen our tree by incorporating a third weak learner that addresses the most glaring deficiencies of the first two learners.
+
+\begin{enumerate}
+\item The structure of the third weak learner is shown in the tree diagram below. Please fill in the prediction at each of the leaves as well as in the table in the column labeled $\hat{f}^3(x)$.
+
+\vspace{10mm}
+
+\begin{minipage}[t]{.4\textwidth}
+{\includegraphics[width=\textwidth]{treeC.png}}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{.4\textwidth}
+<<echo = FALSE, results = 'asis'>>=
+set.seed(495)
+mt <- mtcars[sample(1:nrow(mtcars), 8), ]
+mt$disp <- mt$disp + rnorm(nrow(mt), sd = 30)
+mt$wt <- mt$wt + rnorm(nrow(mt), sd = 1.1)
+mt[1, "disp"] <- 270
+mt[1, "mpg"] <- 15
+mt <- mt[, c("disp", "wt", "mpg")]
+mt$mpg <- round(mt$mpg, digits = 0)
+mt$f1 <- mean(mt$mpg[mt$disp <  254.1])
+mt$f1[mt$disp > 254.1] <- mean(mt$mpg[mt$disp > 254.1])
+mt$r <- mt$mpg - mt$f1
+mt$f2 <- mean(mt$r[mt$wt <  4.1])
+mt$f2[mt$wt > 4.1] <- mean(mt$r[mt$wt > 4.1])
+mt$r2 <- mt$r - mt$f2
+mt <- mt[, c("disp", "wt", "r2")]
+mt$f3 <- rep(NA, 8)
+#mt$f3 <- mean(mt$r2[mt$disp < 117.8])
+#mt$f3[mt$disp > 117.8] <- mean(mt$r2[mt$disp > 117.8])
+names(mt) <- c("$X_1$", "$X_2$", "$r_{old}$", "$\\hat{f}^3(x)$")
+rownames(mt) <- NULL
+library(xtable)
+print(xtable(mt), sanitize.colnames.function = identity, floating = FALSE)
+
+@
+\end{minipage}
+
+\vspace{8mm}
+\item Carefully draw the surface corresponding to $\hat{f}^3(x)$ on the 3D scatterplot below.
+
+\vspace{-8mm}
+
+\begin{center}
+{\includegraphics[scale=0.9]{scatterC.pdf}}
+\end{center}
+
+\end{enumerate}
+
+\newpage
+
+\begin{center}
+\textsc{Math 243: Statistical Learning} \\
+\noindent\rule{12cm}{0.4pt}
+\end{center}
+
+\subsection*{Boosted Trees}
+
+\emph{Full Boosted Model}: Let's say we're sufficently satisfied with having three weak learners. The final step is to combine them into the final model.
+
+\begin{enumerate}
+\item Fill in the final boosted estimates, $\hat{f}^{boost}(x)$, in the table below.
+
+\vspace{10mm}
+
+<<echo = FALSE, results = 'asis'>>=
+set.seed(495)
+mt <- mtcars[sample(1:nrow(mtcars), 8), ]
+mt$disp <- mt$disp + rnorm(nrow(mt), sd = 30)
+mt$wt <- mt$wt + rnorm(nrow(mt), sd = 1.1)
+mt[1, "disp"] <- 270
+mt[1, "mpg"] <- 15
+mt <- mt[, c("disp", "wt", "mpg")]
+mt$mpg <- round(mt$mpg, digits = 0)
+mt$f1 <- mean(mt$mpg[mt$disp <  254.1])
+mt$f1[mt$disp > 254.1] <- mean(mt$mpg[mt$disp > 254.1])
+mt$r <- mt$mpg - mt$f1
+mt$f2 <- mean(mt$r[mt$wt <  4.1])
+mt$f2[mt$wt > 4.1] <- mean(mt$r[mt$wt > 4.1])
+mt$r2 <- mt$r - mt$f2
+mt$f3 <- mean(mt$r2[mt$disp < 117.8])
+mt$f3[mt$disp > 117.8] <- mean(mt$r2[mt$disp > 117.8])
+mt <- mt[, c("disp", "wt", "mpg", "f1", "f2", "f3")]
+#rowSums(mt[, c("f1", "f2", "f3")])
+mt$fboost <- rep(NA, 8)
+names(mt) <- c("$X_1$", "$X_2$", "$Y$", "$\\hat{f}^1(x)$", "$\\hat{f}^2(x)$", 
+               "$\\hat{f}^3(x)$", "$\\hat{f}^{boost}(x)$")
+rownames(mt) <- NULL
+library(xtable)
+print(xtable(mt), sanitize.colnames.function = identity, floating = FALSE, 
+      latex.environments = "center")
+@
+
+\vspace{8mm}
+\item Carefully draw the surface corresponding to $\hat{f}^{boost}(x)$ on the 3D scatterplot below (yes, this is difficult!). Note that we're back to the same coordinates as in the scatterplot for the first weak learner.
+
+\vspace{-8mm}
+
+\begin{center}
+{\includegraphics[scale=0.9]{scatterD.pdf}}
+\end{center}
+
+
+\newpage
+
+\begin{center}
+\textsc{Math 243: Statistical Learning} \\
+\noindent\rule{12cm}{0.4pt}
+\end{center}
+
+\item What value did we use for $d$, the depth of each weak learner?
+\vspace{8mm}
+
+\item What value did we use for $B$, the number of weak learners?
+\vspace{8mm}
+
+\item What value did we use for $\lambda$, the shrinkage parameter?
+\vspace{8mm}
+
+\item Please describe the trend in the amount of explanatory power of each successive learner, $\hat{f}^1(x)$ to $\hat{f}^3(x)$.
+\vspace{25mm}
+
+\item What would be the consequences if we set $\lambda = 0.01$?
+\vspace{8mm}
+
+\end{enumerate}
+
+
+\end{document}
