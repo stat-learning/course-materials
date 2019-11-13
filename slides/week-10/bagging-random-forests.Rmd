@@ -100,7 +100,7 @@ hit_boot <- Hitters[boot_ind, ]
 
 
 ---
-## A random candidate set 
+# A random candidate set 
 --
 
 ```{r}
@@ -126,7 +126,7 @@ text(t1, pretty = 0)
 
 
 ---
-## Making a final prediction 
+# Making a final prediction 
 --
 
 - Predictor values are plugged into each random tree to make a prediction.
@@ -246,7 +246,11 @@ text(weak2, pretty = 0)
 --
 
 - Continue process of fitting simple trees (weak learners) to the residuals from the previous model.
+--
+
 - Stop after you've made a total of $B$ trees.
+--
+
 - Final boosted prediction:
 
 $$ \hat{f}(x) = \sum_{b = 1}^B \hat{f}^b(x)$$
