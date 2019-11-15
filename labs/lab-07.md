@@ -57,7 +57,7 @@ compare to the test MSE for your regression model? You can load the test
 data with the following code:
 
 ``` r
-test_data <- read.csv("https://bit.ly/2PYS8Ap")
+test_data <- read.csv("https://bit.ly/37bdxNc")
 ```
 
 #### 5\. Growing a random forest
@@ -69,12 +69,12 @@ forests (recall that bagging is the special case of random forests with
 \(m = p/3\). Compute their test MSEs. Is this an improvement over the
 vanilla pruned regression tree? Does it beat your regression model?
 
-#### 6\. Variance importance
+#### 6\. Variable importance
 
 One thing we lose by using these computational techniques to limit the
 variance is the clearly interpretable tree diagram. We can still salvage
 some interpretability by considering `importance()`. Please construct a
-Variable Importance Plot (`varImpPlot()`). Are these restults
+Variable Importance Plot (`varImpPlot()`). Are these results
 similar/different from your interpretation of your regression
 coefficients in Lab 3?
 
