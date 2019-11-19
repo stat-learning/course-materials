@@ -31,7 +31,7 @@ ggplot(df, aes(x = x1, y = x2, col = group, shape = group)) +
 
 #### 1. Growing the full classification tree
 
-Use the `trees` package in R to fit a full unpruned tree to this data set, making splits based on the *Gini index*. You can find the code to do this in the slides from week 8 or in the lab at the end of Chapter 8 in the book. Please plot the resulting tree.
+Use the `tree` package in R to fit a full unpruned tree to this data set, making splits based on the *Gini index*. You can find the code to do this in the slides from week 8 or in the lab at the end of Chapter 8 in the book. Please plot the resulting tree.
 
 a. The two most common splits that we saw in class were a horizontal split around $X_2 \approx 0.50$ and a vertical split around $X_1 \approx 0.30$. Was either of these the first split decided upon by your classification tree?
 b. What is the benefit of the second split in the tree?
@@ -67,7 +67,7 @@ test_data <- read.csv("https://bit.ly/37bdxNc")
 We now apply methods to decrease the variance of our estimates. Fit a `randomForest()` model that performs only bagging and no actual random forests (recall that bagging is the special case of random forests with $m = p$). Next, fit a second random forest model that uses $m = p/3$. Compute their test MSEs. Is this an improvement over the vanilla pruned regression tree? Does it beat your regression model?
 
 #### 6. Variable importance
-One thing we lose by using these computational techniques to limit the variance is the clearly interpretable tree diagram. We can still salvage some interpretability by considering `importance()`. Please construct a Variable Importance Plot (`varImpPlot()`). Are these results similar/different from your interpretation of your regression coefficients in Lab 3?
+One thing we lose by using these computational techniques to limit the variance is the clearly interpretable tree diagram. We can still salvage some interpretability by considering `importance()`. Please construct a Variable Importance Plot (`varImpPlot()`) for the bagged and random forest models. So as not to create an overwhelming plot, tweak the arguments to only plot the top ten variables for each. Are these results similar/different from your interpretation of your regression coefficients in Lab 3?
 
 
 * * *
