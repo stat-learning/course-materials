@@ -1,4 +1,4 @@
-d <- read.csv("http://andrewpbray.github.io/math-243/assets/data/handwritten.csv")
+d <- read.csv("https://raw.githubusercontent.com/stat-learning/course-materials/master/data/handwritten.csv")
 
 plot_letter <- function(x, hasletter = TRUE) {
   if(hasletter) {
