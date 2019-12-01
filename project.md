@@ -38,3 +38,31 @@ I will be putting people in groups of three. If you have strong opinions of who 
 ## Group Proposal
 
 Meet with your group and decide on three topics to put forward. These should have component (question, model type, data source, etc) clearly articulated. Each group member should submit to GitHub the same .md file.
+
+
+## Technical Report
+
+Your technical report should be an .Rmd file that contains the following sections. So as not to make the compilation (knitting) of the document not take too long, consider setting `cache = TRUE` in the curly braces of any R chunk with substantial computing. Please knit both to pdf and github document (.md).
+
+### Abstract
+A brief overview of the area that you’ll be investigating, the research question(s) of interest, your approach to analysis, and the general conclusions.
+
+### Introduction
+Overview of the setting of the data, existing theories/models (particularly if you are working in a descriptive/inferential setting), and your research questions.
+
+### The Data
+Where does the data come from? How many observations? How many variables? What does each observation refer to (what is the observational unit)? What sorts of data processing was necessary to get the data in shape for analysis?
+
+### Exploratory Data Analysis
+Explore the structure of the data through graphics. Here you can utilize both traditional plots as well as methods from unsupervised learning. Understanding the distribution of your response is particular important, but also investigate bivariate and higher-order relationships that you expect to be particular interesting.
+
+### Modeling
+Construct (descriptive and/or predictive) (classification and/or regression) models that address your research questions. You are encouraged to fit many different classes of models and see how they compare in terms the bias/variance tradeoff (do you have a Rashomon effect going on?). Also be sure to guard against overfitting through cross-validation or shrinkage/penalization (don’t forget about ridge regression and the lasso).
+
+This will be the most extensive section and will include your results as well.
+
+### Discussion
+Review the results generated above and sythensize them in the context from which the data originated. What do the results tell your about your original research question? Are there any weaknesses that you see in your analysis? What additional questions would you explore next?
+
+### References
+At minimum, this will contain the full citation for your data set. If you reference existing analyses, they should be cited here as well.
