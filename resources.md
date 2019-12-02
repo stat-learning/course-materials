@@ -1,9 +1,3 @@
----
-layout: page
-title: Resources
-permalink: /resources/
----
-
 ## GitHub and RStudio
 
 Instructions for all of this are here:
