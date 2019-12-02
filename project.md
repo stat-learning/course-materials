@@ -66,3 +66,16 @@ Review the results generated above and sythensize them in the context from which
 
 ### References
 At minimum, this will contain the full citation for your data set. If you reference existing analyses, they should be cited here as well.
+
+
+## Presentations
+
+Each group will have 10 minutes to present their work. You are encouraged to use slides and/or handouts to help your audience understand your work. When using slides, any format is fine as long as they can be projected from your laptop or the classroom computer. The structure of the talk should mirror the structure of the technical report. Each talk will be followed by five minutes of Q and A.
+
+Some recommendations:
+
+- Practice your talk beforehand and be sure you have your first three sentences and your last three sentences down pat. Be cognizant of timing to use the full 10 minutes and not more.
+- Be judicious in your use of slides. Much better a small number of well-composed slides with a unified aesthetic than a pile of messy slides.
+- Consider slides like writing: start with drafts then revisit and ask yourself: what is the main story this slide is trying to tell? What can I add or take away to help that story?
+
+
