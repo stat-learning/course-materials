@@ -5,7 +5,7 @@ This is your chance to put all of the modeling techniques that you've been learn
 1. Pre-proposal: Sunday 11/3 11:59 pm
 2. Group proposal: Thursday 11/7 11:59 pm
 3. Technical Report (Exploratory Data Analysis section only) : Wednesday 11/20 before class
-4. Technical Report: Monday 12/2 before class
+4. Technical Report: Monday 12/2 before class (REVISED deadline: Wednesday 12/11 end of day)
 5. Final Presentations: Wednesday 12/4 and Monday 12/9 in class
 
 ## Pre-proposal
