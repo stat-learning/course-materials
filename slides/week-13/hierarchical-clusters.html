@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Clustering: Hierarchical Clustering</title>
+    <meta charset="utf-8" />
+    <link href="libs/remark-css-0.0.1/fc.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/fc-fonts.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="reed.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Clustering: Hierarchical Clustering
+
+---
+
+
+
+
+# Algorithm 10.2
+--
+
+1. Begin with `\(n\)` observations and a dissimilarity matrix. Treat each observation as its own cluster.
+
+--
+
+2. For `\(i = n, n - 1, \ldots, 2\)`:
+    - Examine all pairwise inter-cluster dissimilarities and identify the pair that are most similar. Fuse these clusters at the dendrogram height corresponding to their dissimilarity.
+    - Compute pairwise dissimilarities among remaining `\(i - 1\)` clusters.
+    
+
+---
+# Linkage types
+--
+
+**Complete**: Maximal intercluster dissimilarity.
+
+**Single**: Minimal intercluster dissimilarity.
+
+**Average**: Mean intercluster dissimiliarity.
+
+**Centroid**: Dissimilarity between cluster centroids.
+
+---
+# Example: Cancer Genomics
+--
+
+&lt;img src = "http://mkweb.bcgsc.ca/dev/circos//img/masthead/circos-embl-cancer-genomics-2013.png" width = 750&gt;
+
+How do you characterize the gene expression in cancerous cells?
+
+`NCI60`: Cancer cell mircoarray data with 6,830 expression measurements on 64 cancer cell lines.
+
+
+---
+
+
+```r
+library(ISLR)
+NCI &lt;- NCI60$data
+dim(NCI)
+```
+
+```
+## [1]   64 6830
+```
+
+```r
+NCI[1:3, 1:5]
+```
+
+```
+##           1         2         3         4         5
+## V1 0.300000  1.180000  0.550000  1.140000 -0.265000
+## V2 0.679961  1.289961  0.169961  0.379961  0.464961
+## V3 0.940000 -0.040000 -0.170000 -0.040000 -0.605000
+```
+
+---
+
+
+```r
+NCI_scaled &lt;- scale(NCI)
+NCI_dist &lt;- dist(NCI_scaled)
+dissmatrix &lt;- as.matrix(NCI_dist)
+dissmatrix[1:5, 1:5]
+```
+
+```
+##           V1        V2        V3        V4       V5
+## V1   0.00000  77.04594  87.30561 103.18322 113.7230
+## V2  77.04594   0.00000  88.89531 106.64318 116.1610
+## V3  87.30561  88.89531   0.00000  95.79984 101.0443
+## V4 103.18322 106.64318  95.79984   0.00000 107.0625
+## V5 113.72295 116.16097 101.04429 107.06253   0.0000
+```
+
+This distance matrix can be visualized as a *heatmap*.
+
+
+---
+# Heatmap
+
+
+```r
+heatmap(dissmatrix, Rowv = NA, Colv = NA)
+```
+
+&lt;img src="hierarchical-clusters_files/figure-html/unnamed-chunk-4-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Reordered Heatmap
+--
+
+
+```r
+heatmap(dissmatrix, Colv = NA)
+```
+
+&lt;img src="hierarchical-clusters_files/figure-html/unnamed-chunk-5-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Dendrogram (complete linkage)
+--
+
+&lt;img src="hierarchical-clusters_files/figure-html/unnamed-chunk-6-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Dendrogram (complete linkage)
+
+&lt;img src="hierarchical-clusters_files/figure-html/unnamed-chunk-7-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# Dendrogram (single linkage)
+--
+
+&lt;img src="hierarchical-clusters_files/figure-html/unnamed-chunk-8-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Cutting the Dendro
+--
+
+
+```r
+hc &lt;- hclust(NCI_dist)
+hc_cut &lt;- cutree(hc, k = 4)
+length(hc_cut)
+```
+
+```
+## [1] 64
+```
+
+```r
+head(hc_cut)
+```
+
+```
+## V1 V2 V3 V4 V5 V6 
+##  1  1  1  1  2  2
+```
+
+---
+# Cutting the Dendro
+--
+
+
+```r
+table(hc_cut, NCI60$labs)
+```
+
+```
+##       
+## hc_cut BREAST CNS COLON K562A-repro K562B-repro LEUKEMIA MCF7A-repro
+##      1      2   3     2           0           0        0           0
+##      2      3   2     0           0           0        0           0
+##      3      0   0     0           1           1        6           0
+##      4      2   0     5           0           0        0           1
+##       
+## hc_cut MCF7D-repro MELANOMA NSCLC OVARIAN PROSTATE RENAL UNKNOWN
+##      1           0        8     8       6        2     8       1
+##      2           0        0     1       0        0     1       0
+##      3           0        0     0       0        0     0       0
+##      4           1        0     0       0        0     0       0
+```
+
+- Leukemia cell lines in cluster 3.
+- Breast cancer cell lines spread across 1, 2, and 4.
+
+---
+# Dendrogram
+--
+
+&lt;img src="hierarchical-clusters_files/figure-html/unnamed-chunk-11-1.png" style="display: block; margin: auto;" /&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "atelier-forest-light",
+"highlightLines": true,
+"highlightSpans": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

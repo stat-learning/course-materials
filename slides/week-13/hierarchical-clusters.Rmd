@@ -1,0 +1,146 @@
+---
+title: "Clustering: Hierarchical Clustering"
+output:
+  xaringan::moon_reader:
+    css: [fc, fc-fonts, reed.css, default]
+    lib_dir: libs
+    nature:
+      highlightStyle: atelier-forest-light
+      highlightLines: true
+      highlightSpans: true
+      countIncrementalSlides: false
+---
+
+```{r echo = FALSE, warning=FALSE, message=FALSE}
+library(knitr)
+opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+# Algorithm 10.2
+--
+
+1. Begin with $n$ observations and a dissimilarity matrix. Treat each observation as its own cluster.
+
+--
+
+2. For $i = n, n - 1, \ldots, 2$:
+    - Examine all pairwise inter-cluster dissimilarities and identify the pair that are most similar. Fuse these clusters at the dendrogram height corresponding to their dissimilarity.
+    - Compute pairwise dissimilarities among remaining $i - 1$ clusters.
+    
+
+---
+# Linkage types
+--
+
+**Complete**: Maximal intercluster dissimilarity.
+
+**Single**: Minimal intercluster dissimilarity.
+
+**Average**: Mean intercluster dissimiliarity.
+
+**Centroid**: Dissimilarity between cluster centroids.
+
+---
+# Example: Cancer Genomics
+--
+
+<img src = "http://mkweb.bcgsc.ca/dev/circos//img/masthead/circos-embl-cancer-genomics-2013.png" width = 750>
+
+How do you characterize the gene expression in cancerous cells?
+
+`NCI60`: Cancer cell mircoarray data with 6,830 expression measurements on 64 cancer cell lines.
+
+
+---
+
+```{r}
+library(ISLR)
+NCI <- NCI60$data
+dim(NCI)
+NCI[1:3, 1:5]
+```
+
+---
+
+```{r}
+NCI_scaled <- scale(NCI)
+NCI_dist <- dist(NCI_scaled)
+dissmatrix <- as.matrix(NCI_dist)
+dissmatrix[1:5, 1:5]
+```
+
+This distance matrix can be visualized as a *heatmap*.
+
+
+---
+# Heatmap
+
+```{r fig.align='center', fig.width = 6, fig.height = 6}
+heatmap(dissmatrix, Rowv = NA, Colv = NA)
+```
+
+
+---
+# Reordered Heatmap
+--
+
+```{r fig.align='center', fig.width = 6, fig.height = 6}
+heatmap(dissmatrix, Colv = NA)
+```
+
+
+---
+# Dendrogram (complete linkage)
+--
+
+```{r, echo = FALSE, fig.width = 8, fig.align='center'}
+plot(hclust(NCI_dist), xlab = "", ylab = "", sub = "", main = "Complete Linkage", cex = .6)
+```
+
+
+---
+# Dendrogram (complete linkage)
+
+```{r, echo = FALSE, fig.width = 8, fig.align='center'}
+plot(hclust(NCI_dist), labels = NCI60$labs, xlab = "", ylab = "", sub = "", main = "Complete Linkage", cex = .6)
+```
+
+---
+# Dendrogram (single linkage)
+--
+
+```{r, echo = FALSE, fig.width = 8, fig.align='center'}
+plot(hclust(NCI_dist, method = "single"), labels = NCI60$labs, xlab = "", ylab = "", sub = "", main = "Single Linkage", cex = .6)
+```
+
+
+---
+# Cutting the Dendro
+--
+
+```{r}
+hc <- hclust(NCI_dist)
+hc_cut <- cutree(hc, k = 4)
+length(hc_cut)
+head(hc_cut)
+```
+
+---
+# Cutting the Dendro
+--
+
+```{r}
+table(hc_cut, NCI60$labs)
+```
+
+- Leukemia cell lines in cluster 3.
+- Breast cancer cell lines spread across 1, 2, and 4.
+
+---
+# Dendrogram
+--
+
+```{r, echo = FALSE, fig.width = 8, fig.align='center'}
+plot(hclust(NCI_dist), labels = NCI60$labs, xlab = "", ylab = "", sub = "", main = "Complete Linkage", cex = .6)
+abline(h = 139, col = "tomato")
+```

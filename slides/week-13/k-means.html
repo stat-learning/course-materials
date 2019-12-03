@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Clustering: k-means</title>
+    <meta charset="utf-8" />
+    <link href="libs/remark-css-0.0.1/fc.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/fc-fonts.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="reed.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Clustering: k-means
+
+---
+
+
+
+
+
+
+
+
+&lt;img src="k-means_files/figure-html/unnamed-chunk-4-1.png" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+# Three initial partitions
+
+&lt;img src="figs/kmeans1.png" width="800" style="display: block; margin: auto;" /&gt;
+
+---
+# Three initial partitions
+
+&lt;img src="figs/kmeans2.png" width="800" style="display: block; margin: auto;" /&gt;
+
+---
+# Three initial partitions
+
+&lt;img src="figs/kmeans3.png" width="800" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Algorithm 10.1 
+--
+
+1. Randomly assign each obs. to 1 of K clusters.
+
+--
+
+2. Iterate until the clusters stop changing:
+    - For each of the K clusters, compute the centroid (i.e. mean vector).
+    - Assign each observation to the cluster whose centroid is closest (by Euclidean distance).
+
+
+---
+
+&lt;img src="figs/kmeans-algo1.png" width="600" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="figs/kmeans-algo2.png" width="600" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="figs/kmeans-algo3.png" width="600" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="figs/kmeans-algo4.png" width="600" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="figs/kmeans-algo5.png" width="600" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="figs/kmeans-algo6.png" width="600" style="display: block; margin: auto;" /&gt;
+
+---
+# Important considerations 
+
+1. The final partition is dependent on initial assignments.
+    - *Solution*: run the algorithm several times with different starting conditions and select best.
+    
+--
+
+2. Consider scaling the variables
+    - Scale if you want "similar" to mean close w.r.t. all variables.
+
+
+---
+class:small
+## Activity 5 
+
+Use K-means clustering to identify the best 2, 3, and 4 clusterings of US states based on the data in the `poverty`. Use Euclidean distance for your similarity measure.
+
+
+```r
+poverty &lt;- read.delim("https://bit.ly/381pd5e")
+```
+
+
+Useful functions:
+
+- `kmeans()`
+- `set.seed()`
+- `geom_text()` or `ggrepel::geom_text_repel()`
+
+1. What do the variables seem to mean?
+2. Find best cluster assignments of size K.
+3. Generate a scatterplot of the 51 obs and their first two PCs.
+4. Color code each with their cluster assignment.
+
+
+---
+
+
+
+---
+# Choosing K
+
+---
+# K = 4
+--
+
+&lt;img src="k-means_files/figure-html/unnamed-chunk-17-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# K = 3
+
+&lt;img src="k-means_files/figure-html/unnamed-chunk-18-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# K = 2
+
+&lt;img src="k-means_files/figure-html/unnamed-chunk-19-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# K = 1
+
+&lt;img src="k-means_files/figure-html/unnamed-chunk-20-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Variation with K = 1
+
+
+```r
+names(km1)
+```
+
+```
+## [1] "cluster"      "centers"      "totss"        "withinss"    
+## [5] "tot.withinss" "betweenss"    "size"         "iter"        
+## [9] "ifault"
+```
+
+```r
+km1$withinss
+```
+
+```
+## [1] 22776.26
+```
+
+```r
+km1$tot.withinss
+```
+
+```
+## [1] 22776.26
+```
+
+
+---
+# K = 2
+--
+
+&lt;img src="k-means_files/figure-html/unnamed-chunk-22-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Variation with K = 2
+--
+
+
+```r
+km2$withinss
+```
+
+```
+## [1] 8257.379 5480.290
+```
+
+```r
+km2$tot.withinss
+```
+
+```
+## [1] 13737.67
+```
+
+```r
+km2$totss
+```
+
+```
+## [1] 22776.26
+```
+
+---
+## TWSS and K
+--
+
+&lt;img src="k-means_files/figure-html/unnamed-chunk-24-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# Selecting K
+--
+
+- Use domain area knowledge.
+
+--
+
+- Look for "elbow" in a scree plot.
+
+--
+
+- Formalize "elbow" with Gap statistic (Tibshirani, 2001).
+
+--
+
+The number of clusters is often ambiguous, which shouldn't be surprising in an unsupervised setting.
+
+Choice of K is choosing where on the spectrum between complete aggregation (K = 1) and no aggregation (K = n).
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "atelier-forest-light",
+"highlightLines": true,
+"highlightSpans": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
