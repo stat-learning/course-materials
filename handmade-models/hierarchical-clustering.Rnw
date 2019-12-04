@@ -1,0 +1,52 @@
+\documentclass{article}
+\usepackage{graphicx, color, hyperref, fancyhdr}
+
+%\input{../brayTeachingStyle}
+
+\usepackage[top=.8in, bottom=.5in, left=1.5in, right=1.5in]{geometry}
+\thispagestyle{empty}
+\begin{document}
+
+\begin{center}
+\textsc{Math 243: Statistical Learning} \\
+\noindent\rule{12cm}{.5pt}
+\end{center}
+
+\subsection*{Hierarchical Clustering}
+
+Suppose that we have four observations in $p$ dimensions for which we compute the following dissimilarity matrix.
+
+{\renewcommand{\arraystretch}{1.75}
+\begin{center}
+  \begin{tabular}{ c | c | c | c | c |}
+     & A & B & C & D \\ \hline
+    A & 0 & 30 & 40 & 70 \\ \hline
+    B & 30 & 0 & 50 & 80 \\ \hline
+    C & 40 & 50 & 0 & 45 \\ \hline
+    D & 70 & 80 & 45 & 0 \\ \hline
+  \end{tabular}
+\end{center}
+}
+
+\vspace{3mm}
+
+\begin{enumerate}
+\item Sketch two dendrogram corresponding to the two different choices of linkage. Indicate the height of each fusion as well as the observation corresponding to each leaf.
+
+<<echo = FALSE, fig.height=8, fig.width=10>>=
+par(mfrow = c(1, 2))
+plot(0, 0, xlab = "", ylab = "dissimilarity", type = "n", bty = "l", 
+     xaxt = "n", yaxt = "n", main = "complete linkage")
+plot(0, 0, xlab = "", ylab = "dissimilarity", type = "n", bty = "l", 
+     xaxt = "n", yaxt = "n", main = "single linkage")
+@
+
+
+\item If we cut the complete linkage dendrogram such that there are two clusters, what is the cluster membership?
+\vspace{15mm}
+\item What is the membership if we cut the single linkage dendrogram to create two clusters?
+\end{enumerate}
+
+
+
+\end{document}

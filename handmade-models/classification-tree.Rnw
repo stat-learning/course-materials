@@ -1,0 +1,75 @@
+\documentclass{article}
+\usepackage{graphicx, color, hyperref, fancyhdr}
+
+%\input{../brayTeachingStyle}
+
+\usepackage[top=.5in, bottom=.5in, left=1.1in, right=1.1in]{geometry}
+\thispagestyle{empty}
+\begin{document}
+
+\begin{center}
+\textsc{Math 243: Statistical Learning} \\
+\noindent\rule{12cm}{0.4pt}
+\end{center}
+
+
+\begin{enumerate}
+\setlength\itemsep{4em}
+
+\item The plot below represents the predictor space (on $X_1$ and $X_2$) with a training data set plotted and the class of their response variable indicated by the color.
+
+\begin{minipage}{.5\linewidth}
+{\includegraphics[scale=0.6]{3-class-plot}}
+\end{minipage}
+\begin{minipage}{.5\linewidth}
+
+\begin{enumerate}
+\setlength\itemsep{3em}
+\item If we consider this a classification tree without any splits yet (i.e. only one region), what would be the prediction for \emph{every} new observation?
+\item What is the (training) misclassification rate?
+\item What is the GINI index?
+\item What is the cross-entropy?
+\end{enumerate}
+
+\end{minipage}
+
+\item Add a straight line, parallel to one of the axes, that splits the predictor space into two regions. Choose the split in a way that you think will lead to the best overall improvement in the metrics above. Label the new regions $\textrm{R}_1$ and $\textrm{R}_2$ and calculate the metrics for each.
+
+\vspace{5mm}
+
+\begin{minipage}{.5\linewidth}
+\begin{center}
+$\textrm{R}_1$
+\end{center}
+\begin{enumerate}
+\setlength\itemsep{3em}
+\item What is the predicted class?
+\item What is the misclassification rate?
+\item What is the GINI index?
+\item What is the cross-entropy?
+\end{enumerate}
+\end{minipage}
+\begin{minipage}{.5\linewidth}
+\begin{center}
+$\textrm{R}_2$
+\end{center}
+\begin{enumerate}
+\setlength\itemsep{3em}
+\item What is the predicted class?
+\item What is the misclassification rate?
+\item What is the GINI index?
+\item What is the cross-entropy?
+\end{enumerate}
+
+\end{minipage}
+\item To decide if the split in Q2 was optimal, we need to evaluate how much the metrics in Q1 have improved. This requires combining the metrics across $\textrm{R}_1$ and $\textrm{R}_2$ in Q2. Please do so in a sensible way so that you can answer: what was the overall decrease each metric going from one region/node to two?
+
+Misclassification: \hspace{30mm} GINI: \hspace{30mm} Cross-entropy:
+
+\vspace{5mm}
+
+\item On the back of this page, please draw the (very simple) tree corresponding to your partition.
+
+\end{enumerate}
+
+\end{document}
